@@ -1,14 +1,16 @@
 #include "LoginWindow.h"
 #include "ui_loginwindow.h"
-#include "databasemanager.h" // Import DatabaseManager
+#include "RegisterDialog.h" // Include RegisterDialog
+#include "databasemanager.h"
 #include <QMessageBox>
-#include <QCryptographicHash> // For password hashing
+#include <QCryptographicHash>
 
 LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
+    connect(ui->registerButton, &QPushButton::clicked, this, &LoginWindow::on_registerButton_clicked);
 }
 
 LoginWindow::~LoginWindow()
@@ -16,7 +18,8 @@ LoginWindow::~LoginWindow()
     delete ui;
 }
 
-void LoginWindow::on_loginButton_clicked() {
+void LoginWindow::on_loginButton_clicked()
+{
     QString login = ui->loginLineEdit->text();
     QString password = ui->passwordLineEdit->text();
     QString hashedPassword = hashPassword(password);
@@ -35,14 +38,21 @@ void LoginWindow::on_loginButton_clicked() {
         }
     }
 
-
     if (found) {
+        qDebug() << "Login successful for user: " << login;  // Add this line
         emit loginSuccessful(login);
-        accept(); // Close the dialog
-        ui->errorLabel->setText(""); // Clear any previous error message
+        accept();
     } else {
-        ui->errorLabel->setText("Неверный логин или пароль.");
+        QMessageBox::warning(this, "Login Failed", "Incorrect login or password.");
     }
+}
+
+void LoginWindow::on_registerButton_clicked()
+{
+    RegisterDialog registerDialog(this);
+    connect(&registerDialog, &RegisterDialog::registrationSuccessful,
+            this, &LoginWindow::show); // Connect signal
+    registerDialog.exec();
 }
 
 QString LoginWindow::hashPassword(const QString& password) const {

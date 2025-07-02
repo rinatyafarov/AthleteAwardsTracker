@@ -2,7 +2,6 @@
 #define LOGINWINDOW_H
 
 #include <QDialog>
-#include <QCryptographicHash> // For password hashing
 
 namespace Ui {
 class LoginWindow;
@@ -21,6 +20,7 @@ signals:
 
 private slots:
     void on_loginButton_clicked();
+    void on_registerButton_clicked();
 
 private:
     Ui::LoginWindow *ui;

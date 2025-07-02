@@ -38,6 +38,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         stringutils.h stringutils.cpp
         pdfexporter.h pdfexporter.cpp
         csvexporter.h csvexporter.cpp
+        registerdialog.h registerdialog.cpp registerdialog.ui
+
 
     )
 # Define target properties for Android with Qt 6 as:

@@ -1,4 +1,10 @@
 #include "DatabaseManager.h"
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QDebug>
+#include "Award.h" // Include Award
+#include "Athlete.h" // Include Athlete
+#include <QDate>
 
 DatabaseManager* DatabaseManager::m_instance = nullptr;
 
@@ -41,30 +47,72 @@ void DatabaseManager::closeDatabase() {
     }
 }
 
-bool DatabaseManager::createTables() {
-    QString createAwardsTableQuery = "CREATE TABLE IF NOT EXISTS awards ("
-                                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                     "name TEXT NOT NULL,"
-                                     "date TEXT NOT NULL,"
-                                     "location TEXT,"
-                                     "sport INTEGER,"
-                                     "discipline TEXT,"
-                                     "level INTEGER,"
-                                     "place TEXT,"
-                                     "document TEXT"
-                                     ");";
+bool DatabaseManager::createTables()
+{
+    bool success = true;
 
-    QString createAthletesTableQuery = "CREATE TABLE IF NOT EXISTS athletes ("
-                                       "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                       "firstName TEXT NOT NULL,"
-                                       "lastName TEXT NOT NULL,"
-                                       "dateOfBirth TEXT,"
-                                       "email TEXT,"
-                                       "login TEXT UNIQUE NOT NULL,"
-                                       "password TEXT" //TODO: Hash password
-                                       ");";
+    // Create the awards table
+    QString awardsTableQuery = R"(
+        CREATE TABLE IF NOT EXISTS awards (
+            name TEXT NOT NULL,
+            date TEXT NOT NULL,
+            location TEXT,
+            sport INT,
+            discipline TEXT,
+            level INT,
+            place TEXT,
+            document TEXT
+        );
+    )";
+    success &= executeQuery(awardsTableQuery);
 
-    return executeQuery(createAwardsTableQuery) && executeQuery(createAthletesTableQuery);
+    // Create the athletes table
+    QString athletesTableQuery = R"(
+        CREATE TABLE IF NOT EXISTS athletes (
+            firstName TEXT NOT NULL,
+            lastName TEXT NOT NULL,
+            dateOfBirth TEXT,
+            email TEXT UNIQUE,
+            login TEXT UNIQUE,
+            password TEXT
+        );
+    )";
+    success &= executeQuery(athletesTableQuery);
+
+    if (!success) {
+        emit databaseError("Failed to create tables");
+    }
+
+    return success;
+}
+
+bool DatabaseManager::addAthlete(const Athlete& athlete)
+{
+    QSqlQuery query(m_db);
+    query.prepare("INSERT INTO athletes (firstName, lastName, dateOfBirth, email, login, password) "
+                  "VALUES (:firstName, :lastName, :dateOfBirth, :email, :login, :password)");
+
+    qDebug() << "firstName: " << athlete.getFirstName();
+    qDebug() << "lastName: " << athlete.getLastName();
+    qDebug() << "dateOfBirth: " << athlete.getDateOfBirth().toString("yyyy-MM-dd");
+    qDebug() << "email: " << athlete.getEmail();
+    qDebug() << "login: " << athlete.getLogin();
+    qDebug() << "password: " << athlete.getPassword();
+
+
+    query.bindValue(":firstName", athlete.getFirstName());
+    query.bindValue(":lastName", athlete.getLastName());
+    query.bindValue(":dateOfBirth", athlete.getDateOfBirth().toString("yyyy-MM-dd"));
+    query.bindValue(":email", athlete.getEmail());
+    query.bindValue(":login", athlete.getLogin());
+    query.bindValue(":password", athlete.getPassword());
+
+    if (!query.exec()) {
+        qDebug() << "Error adding athlete:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line
+        return false;
+    }
+    return true;
 }
 
 bool DatabaseManager::addAward(const Award& award) {
@@ -80,7 +128,12 @@ bool DatabaseManager::addAward(const Award& award) {
     query.bindValue(":place", award.getPlace());
     query.bindValue(":document", award.getDocument());
 
-    return query.exec();
+    if (!query.exec()) {
+        qDebug() << "Error adding award:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
+        return false;
+    }
+    return true;
 }
 
 bool DatabaseManager::updateAward(const Award& award) {
@@ -99,7 +152,12 @@ bool DatabaseManager::updateAward(const Award& award) {
     query.bindValue(":oldName", award.getName()); //TODO: Need unique ID
     query.bindValue(":oldDate", award.getDate().toString("yyyy-MM-dd"));
 
-    return query.exec();
+    if (!query.exec()) {
+        qDebug() << "Error updating award:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
+        return false;
+    }
+    return true;
 }
 
 bool DatabaseManager::removeAward(const Award& award) {
@@ -108,7 +166,12 @@ bool DatabaseManager::removeAward(const Award& award) {
     query.bindValue(":name", award.getName());
     query.bindValue(":date", award.getDate().toString("yyyy-MM-dd"));
 
-    return query.exec();
+    if (!query.exec()) {
+        qDebug() << "Error removing award:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
+        return false;
+    }
+    return true;
 }
 
 QList<Award> DatabaseManager::getAllAwards() const {
@@ -131,24 +194,12 @@ QList<Award> DatabaseManager::getAllAwards() const {
         }
     } else {
         qDebug() << "Error getting all awards: " << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
     }
 
     return awards;
 }
 
-bool DatabaseManager::addAthlete(const Athlete& athlete) {
-    QSqlQuery query(m_db);
-    query.prepare("INSERT INTO athletes (firstName, lastName, dateOfBirth, email, login, password) "
-                  "VALUES (:firstName, :lastName, :dateOfBirth, :email, :login, :password)");
-    query.bindValue(":firstName", athlete.getFirstName());
-    query.bindValue(":lastName", athlete.getLastName());
-    query.bindValue(":dateOfBirth", athlete.getDateOfBirth().toString("yyyy-MM-dd"));
-    query.bindValue(":email", athlete.getEmail());
-    query.bindValue(":login", athlete.getLogin());
-    query.bindValue(":password", athlete.getPassword());
-
-    return query.exec();
-}
 
 bool DatabaseManager::updateAthlete(const Athlete& athlete) {
     QSqlQuery query(m_db);
@@ -162,7 +213,12 @@ bool DatabaseManager::updateAthlete(const Athlete& athlete) {
     query.bindValue(":login", athlete.getLogin());
     query.bindValue(":password", athlete.getPassword());
 
-    return query.exec();
+    if (!query.exec()) {
+        qDebug() << "Error updating athlete:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
+        return false;
+    }
+    return true;
 }
 
 bool DatabaseManager::removeAthlete(const Athlete& athlete) {
@@ -170,7 +226,12 @@ bool DatabaseManager::removeAthlete(const Athlete& athlete) {
     query.prepare("DELETE FROM athletes WHERE login = :login");
     query.bindValue(":login", athlete.getLogin());
 
-    return query.exec();
+    if (!query.exec()) {
+        qDebug() << "Error removing athlete:" << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
+        return false;
+    }
+    return true;
 }
 
 QList<Athlete> DatabaseManager::getAllAthletes() const {
@@ -181,16 +242,17 @@ QList<Athlete> DatabaseManager::getAllAthletes() const {
     if (query.exec()) {
         while (query.next()) {
             Athlete athlete;
-            athlete.setFirstName(query.value(0).toString());
-            athlete.setLastName(query.value(1).toString());
-            athlete.setDateOfBirth(QDate::fromString(query.value(2).toString(), "yyyy-MM-dd"));
-            athlete.setEmail(query.value(3).toString());
-            athlete.setLogin(query.value(4).toString());
-            athlete.setPassword(query.value(5).toString());
+            athlete.setFirstName(query.value("firstName").toString());
+            athlete.setLastName(query.value("lastName").toString());
+            athlete.setDateOfBirth(QDate::fromString(query.value("dateOfBirth").toString(), "yyyy-MM-dd"));
+            athlete.setEmail(query.value("email").toString());
+            athlete.setLogin(query.value("login").toString());
+            athlete.setPassword(query.value("password").toString());
             athletes.append(athlete);
         }
     } else {
         qDebug() << "Error getting all athletes: " << query.lastError().text();
+        qDebug() << "Query: " << query.lastQuery(); // Add this line for debugging
     }
 
     return athletes;
