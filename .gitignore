@@ -1,0 +1,15 @@
+# === build и временные файлы ===
+/build*
+CMakeFiles/
+CMakeCache.txt
+*.ninja*
+*.obj *.exe *.dll *.pdb *.ilk
+
+# === Qt Creator / MSVC ===
+*.autosave
+*.user*
+*.designer
+ф
+# === ОС ===
+.DS_Store
+Thumbs.db
