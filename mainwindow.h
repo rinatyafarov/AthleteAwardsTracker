@@ -3,9 +3,9 @@
 
 #include <QMainWindow>
 #include <QList>
-#include "Award.h"  // Include the Award class
-#include "Athlete.h"  // Include the Athlete class
-#include "DataManager.h"
+#include "Award.h"
+#include "Athlete.h"
+#include "databasemanager.h"
 #include <QListWidgetItem> // Include QListWidgetItem
 #include <QString>  // Include QString
 
@@ -20,6 +20,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr, Athlete loggedInAthlete = Athlete());
     ~MainWindow() override;
+
+    // Declare helper functions for enum to string conversion and make them public
+    static QString sportTypeToString(SportType type);
+    static QString competitionLevelToString(CompetitionLevel level);
 
 private slots:
     void on_addAwardButton_clicked();
@@ -36,12 +40,10 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    DataManager& m_dataManager; // Initialize in constructor
+    DatabaseManager& m_dataManager; // Initialize in constructor
     Athlete m_loggedInAthlete;
     QList<Award> m_awards;
-
-    // Declare helper functions for enum to string conversion
-    static QString sportTypeToString(SportType type);
-    static QString competitionLevelToString(CompetitionLevel level);
+    int m_loggedInAthleteId; // Store the athlete's ID
 };
+
 #endif // MAINWINDOW_H

@@ -1,5 +1,6 @@
 #include "AwardDetailsDialog.h"
 #include "ui_awarddetailsdialog.h"
+#include "MainWindow.h" // Include MainWindow
 
 AwardDetailsDialog::AwardDetailsDialog(const Award& award, QWidget *parent) :
     QDialog(parent),
@@ -12,10 +13,10 @@ AwardDetailsDialog::AwardDetailsDialog(const Award& award, QWidget *parent) :
     ui->nameLabel->setText(m_award.getName());
     ui->dateLabel->setText(m_award.getDate().toString("dd.MM.yyyy"));
     ui->locationLabel->setText(m_award.getLocation());
-    ui->sportLabel->setText(QString::number(static_cast<int>(m_award.getSport()))); // Convert enum to string
+    ui->sportLabel->setText(MainWindow::sportTypeToString(m_award.getSport())); // Use sportTypeToString
     ui->disciplineLabel->setText(m_award.getDiscipline());
-    ui->levelLabel->setText(QString::number(static_cast<int>(m_award.getLevel()))); // Convert enum to string
-    ui->placeLabel->setText(m_award.getPlace());
+    ui->levelLabel->setText(MainWindow::competitionLevelToString(m_award.getLevel())); // Use competitionLevelToString
+    ui->placeLabel->setText(QString::number(m_award.getPlace())); // Convert int to QString
     ui->documentLabel->setText(m_award.getDocument());
 }
 

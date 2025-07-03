@@ -21,15 +21,6 @@ public:
     void removeAward(const Award& award);
 
     QList<Athlete> getAthletes() const;
-    void addAthlete(const Athlete& athlete);
-    void updateAthlete(const Athlete& athlete);
-    void removeAthlete(const Athlete& athlete);
-
-    QList<Award> searchAwards(const QString& searchTerm) const;
-    QList<Award> filterAwards(const QString& filterCriteria) const; //TODO: use more sophisticated filter
-
-    bool loadData();
-    bool saveData();
 
 signals:
     void awardsChanged();
@@ -41,13 +32,8 @@ private:
     static DataManager* m_instance;
 
     QList<Award> m_awards;
-    QList<Athlete> m_athletes;
 
-    // Helper functions for loading and saving data (implementation details)
-    bool loadAwards();
-    bool saveAwards();
-    bool loadAthletes();
-    bool saveAthletes();
+    void updateAwardList(); // Method to update the list of awards from the database
 };
 
 #endif // DATAMANAGER_H

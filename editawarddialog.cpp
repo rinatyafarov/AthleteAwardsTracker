@@ -16,7 +16,7 @@ EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) :
     ui->sportComboBox->setCurrentIndex(static_cast<int>(m_award.getSport()));
     ui->disciplineLineEdit->setText(m_award.getDiscipline());
     ui->levelComboBox->setCurrentIndex(static_cast<int>(m_award.getLevel()));
-    ui->placeLineEdit->setText(m_award.getPlace());
+    ui->placeLineEdit->setText(QString::number(m_award.getPlace())); // Convert int to QString
     ui->documentLineEdit->setText(m_award.getDocument());
 }
 
@@ -34,7 +34,7 @@ Award EditAwardDialog::getAward() const
     award.setSport(static_cast<SportType>(ui->sportComboBox->currentIndex()));
     award.setDiscipline(ui->disciplineLineEdit->text());
     award.setLevel(static_cast<CompetitionLevel>(ui->levelComboBox->currentIndex()));
-    award.setPlace(ui->placeLineEdit->text());
+    award.setPlace(ui->placeLineEdit->text().toInt()); // Convert QString to int
     award.setDocument(ui->documentLineEdit->text());
     return award;
 }

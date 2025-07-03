@@ -1,18 +1,16 @@
 #ifndef AWARD_H
 #define AWARD_H
 
-#include <QDate>
 #include <QString>
-
-// Forward declaration
-class QJsonObject;
+#include <QDate>
+#include <QJsonObject>
+#include <QJsonValue>
 
 enum class SportType {
-    Unknown,
     Athletics,
     Swimming,
     Cycling,
-    TeamSport, // Generic for team sports
+    TeamSport,
     Football,
     Basketball,
     Volleyball,
@@ -33,48 +31,39 @@ class Award
 {
 public:
     Award();
-    Award(const QString &name, const QDate &date, const QString &location, SportType sport,
-          const QString &discipline, CompetitionLevel level, const QString &place,
-          const QString &document);
+    Award(QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document);
+    Award(int id, QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document); // Constructor with ID
 
+    int getId() const;
+    void setId(int id);
     QString getName() const;
     void setName(const QString &name);
-
     QDate getDate() const;
     void setDate(const QDate &date);
-
     QString getLocation() const;
     void setLocation(const QString &location);
-
     SportType getSport() const;
-    void setSport(const SportType &sport);
-
+    void setSport(SportType sport);
     QString getDiscipline() const;
     void setDiscipline(const QString &discipline);
-
     CompetitionLevel getLevel() const;
-    void setLevel(const CompetitionLevel &level);
-
-    QString getPlace() const;
-    void setPlace(const QString &place);
-
+    void setLevel(CompetitionLevel level);
+    int getPlace() const; // Changed type to int
+    void setPlace(int place); // Changed type to int
     QString getDocument() const;
     void setDocument(const QString &document);
-
-    //JSON support
     QJsonObject toJson() const;
     static Award fromJson(const QJsonObject &json);
 
-    bool operator==(const Award& other) const;
-
 private:
+    int m_id;
     QString m_name;
     QDate m_date;
     QString m_location;
     SportType m_sport;
     QString m_discipline;
     CompetitionLevel m_level;
-    QString m_place;
+    int m_place; // Changed type to int
     QString m_document;
 };
 

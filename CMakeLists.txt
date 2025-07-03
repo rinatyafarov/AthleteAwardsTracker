@@ -25,7 +25,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         athlete.h athlete.cpp
         award.h award.cpp
-        datamanager.h datamanager.cpp
         databasemanager.h databasemanager.cpp
         loginwindow.h loginwindow.cpp loginwindow.ui
         addawarddialog.h addawarddialog.cpp addawarddialog.ui

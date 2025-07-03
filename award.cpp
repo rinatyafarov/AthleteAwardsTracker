@@ -1,17 +1,15 @@
 #include "Award.h"
-
 #include <QJsonObject>
-#include <QJsonDocument>
+#include <QJsonValue>
+#include <QDebug>
 
 Award::Award() :
-    m_sport(SportType::Unknown),
+    m_id(0),
+    m_sport(SportType::Other),
     m_level(CompetitionLevel::Local)
-{
-}
+{}
 
-Award::Award(const QString &name, const QDate &date, const QString &location, SportType sport,
-             const QString &discipline, CompetitionLevel level, const QString &place,
-             const QString &document) :
+Award::Award(QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document) :
     m_name(name),
     m_date(date),
     m_location(location),
@@ -20,7 +18,29 @@ Award::Award(const QString &name, const QDate &date, const QString &location, Sp
     m_level(level),
     m_place(place),
     m_document(document)
+{}
+
+Award::Award(int id, QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document) :
+    m_id(id),
+    m_name(name),
+    m_date(date),
+    m_location(location),
+    m_sport(sport),
+    m_discipline(discipline),
+    m_level(level),
+    m_place(place),
+    m_document(document)
+{}
+
+
+int Award::getId() const
 {
+    return m_id;
+}
+
+void Award::setId(int id)
+{
+    m_id = id;
 }
 
 QString Award::getName() const
@@ -58,7 +78,7 @@ SportType Award::getSport() const
     return m_sport;
 }
 
-void Award::setSport(const SportType &sport)
+void Award::setSport(SportType sport)
 {
     m_sport = sport;
 }
@@ -78,17 +98,17 @@ CompetitionLevel Award::getLevel() const
     return m_level;
 }
 
-void Award::setLevel(const CompetitionLevel &level)
+void Award::setLevel(CompetitionLevel level)
 {
     m_level = level;
 }
 
-QString Award::getPlace() const
+int Award::getPlace() const
 {
     return m_place;
 }
 
-void Award::setPlace(const QString &place)
+void Award::setPlace(int place)
 {
     m_place = place;
 }
@@ -103,12 +123,14 @@ void Award::setDocument(const QString &document)
     m_document = document;
 }
 
-QJsonObject Award::toJson() const {
+QJsonObject Award::toJson() const
+{
     QJsonObject json;
+    json["id"] = m_id;
     json["name"] = m_name;
     json["date"] = m_date.toString("yyyy-MM-dd");
     json["location"] = m_location;
-    json["sport"] = static_cast<int>(m_sport); // Store enum as integer
+    json["sport"] = static_cast<int>(m_sport);
     json["discipline"] = m_discipline;
     json["level"] = static_cast<int>(m_level);
     json["place"] = m_place;
@@ -116,26 +138,17 @@ QJsonObject Award::toJson() const {
     return json;
 }
 
-Award Award::fromJson(const QJsonObject &json) {
+Award Award::fromJson(const QJsonObject &json)
+{
     Award award;
+    award.setId(json["id"].toInt());
     award.setName(json["name"].toString());
     award.setDate(QDate::fromString(json["date"].toString(), "yyyy-MM-dd"));
     award.setLocation(json["location"].toString());
     award.setSport(static_cast<SportType>(json["sport"].toInt()));
     award.setDiscipline(json["discipline"].toString());
     award.setLevel(static_cast<CompetitionLevel>(json["level"].toInt()));
-    award.setPlace(json["place"].toString());
+    award.setPlace(json["place"].toInt());
     award.setDocument(json["document"].toString());
     return award;
-}
-bool Award::operator==(const Award& other) const
-{
-    return (m_name == other.m_name &&
-            m_date == other.m_date &&
-            m_location == other.m_location &&
-            m_sport == other.m_sport &&
-            m_discipline == other.m_discipline &&
-            m_level == other.m_level &&
-            m_place == other.m_place &&
-            m_document == other.m_document);
 }

@@ -1,19 +1,24 @@
 #include "Athlete.h"
-#include <QJsonObject>
 
-Athlete::Athlete()
-{
-}
+Athlete::Athlete() {}
 
-Athlete::Athlete(const QString &firstName, const QString &lastName, const QDate &dateOfBirth,
-                 const QString &email, const QString &login, const QString &password) :
+Athlete::Athlete(QString firstName, QString lastName, QDate dateOfBirth, QString email, QString login, QString password) :
     m_firstName(firstName),
     m_lastName(lastName),
     m_dateOfBirth(dateOfBirth),
     m_email(email),
     m_login(login),
     m_password(password)
+{}
+
+int Athlete::getId() const
 {
+    return m_id;
+}
+
+void Athlete::setId(int id)
+{
+    m_id = id;
 }
 
 QString Athlete::getFirstName() const
@@ -74,35 +79,4 @@ QString Athlete::getPassword() const
 void Athlete::setPassword(const QString &password)
 {
     m_password = password;
-}
-
-QJsonObject Athlete::toJson() const {
-    QJsonObject json;
-    json["firstName"] = m_firstName;
-    json["lastName"] = m_lastName;
-    json["dateOfBirth"] = m_dateOfBirth.toString("yyyy-MM-dd");
-    json["email"] = m_email;
-    json["login"] = m_login;
-    json["password"] = m_password; // In real app, hash this!
-    return json;
-}
-
-Athlete Athlete::fromJson(const QJsonObject &json) {
-    Athlete athlete;
-    athlete.setFirstName(json["firstName"].toString());
-    athlete.setLastName(json["lastName"].toString());
-    athlete.setDateOfBirth(QDate::fromString(json["dateOfBirth"].toString(), "yyyy-MM-dd"));
-    athlete.setEmail(json["email"].toString());
-    athlete.setLogin(json["login"].toString());
-    athlete.setPassword(json["password"].toString()); // In real app, NEVER store plain text passwords!
-    return athlete;
-}
-bool Athlete::operator==(const Athlete& other) const
-{
-    return (m_firstName == other.m_firstName &&
-            m_lastName == other.m_lastName &&
-            m_dateOfBirth == other.m_dateOfBirth &&
-            m_email == other.m_email &&
-            m_login == other.m_login &&
-            m_password == other.m_password);
 }

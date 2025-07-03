@@ -1,11 +1,10 @@
-#ifndef DATABASEMANAGER_H
-#define DATABASEMANAGER_H
+#ifndef DATABANAGER_H
+#define DATABANAGER_H
 
 #include <QObject>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
-#include <QDebug>
 
 #include "Award.h"
 #include "Athlete.h"
@@ -13,29 +12,24 @@
 class DatabaseManager : public QObject
 {
     Q_OBJECT
-public:
-    static DatabaseManager& getInstance();
 
-    bool connectToDatabase(const QString& dbPath);
+public:
+    static DatabaseManager& getInstance(); // Singleton
+
+    bool connectToDatabase(const QString& dbName);
     void closeDatabase();
 
-    bool createTables();
+    QList<Award> getAllAwards(int athleteId) const;
+    void addAward(const Award& award);
+    void updateAward(const Award& award);
+    void removeAward(const Award& award);
 
-    // Award operations
-    bool addAward(const Award& award);
-    bool updateAward(const Award& award);
-    bool removeAward(const Award& award);
-    QList<Award> getAllAwards() const;
-
-    // Athlete operations
-    bool addAthlete(const Athlete& athlete);
-    bool updateAthlete(const Athlete& athlete);
-    bool removeAthlete(const Athlete& athlete);
     QList<Athlete> getAllAthletes() const;
+    bool addAthlete(const Athlete& athlete); // Changed return type to bool
+    void updateAthlete(const Athlete& athlete);
+    void removeAthlete(const Athlete& athlete);
 
-signals:
-    void databaseError(const QString& error);
-    void databaseConnected();
+    QSqlDatabase& getDatabase() { return m_db; } // Add this method
 
 private:
     DatabaseManager();
@@ -43,13 +37,9 @@ private:
     static DatabaseManager* m_instance;
 
     QSqlDatabase m_db;
+    bool executeQuery(const QString& queryStr); // Helper function
+    bool initializeTables();
 
-    // Helper functions
-    bool executeQuery(const QString& query);
-
-    // Prevent copy construction and assignment
-    DatabaseManager(const DatabaseManager&) = delete;
-    DatabaseManager& operator=(const DatabaseManager&) = delete;
 };
 
-#endif // DATABASEMANAGER_H
+#endif // DATABANAGER_H
