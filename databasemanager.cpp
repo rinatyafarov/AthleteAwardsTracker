@@ -234,3 +234,15 @@ bool DatabaseManager::executeQuery(const QString& queryStr) {
     }
     return true;
 }
+bool DatabaseManager::loginExists(const QString &login) {
+    QSqlQuery query(m_db);
+    query.prepare("SELECT id FROM athletes WHERE login = :login");
+    query.bindValue(":login", login);
+
+    if (query.exec()) {
+        return query.next(); // Returns true if a row is found, meaning the login exists
+    } else {
+        qDebug() << "Error checking login existence:" << query.lastError().text();
+        return false; // Handle the error appropriately
+    }
+}

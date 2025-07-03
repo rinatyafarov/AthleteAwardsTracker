@@ -31,12 +31,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         editawarddialog.h editawarddialog.cpp editawarddialog.ui
         awarddetailsdialog.h awarddetailsdialog.cpp awarddetailsdialog.ui
         athleteprofilewindow.h athleteprofilewindow.cpp athleteprofilewindow.ui
-        customfilterwidget.h customfilterwidget.cpp customfilterwidget.ui
+
         reportgenerator.h reportgenerator.cpp reportgenerator.ui
         awarditemwidget.h awarditemwidget.cpp
         stringutils.h stringutils.cpp
-        pdfexporter.h pdfexporter.cpp
-        csvexporter.h csvexporter.cpp
+
+
         registerdialog.h registerdialog.cpp registerdialog.ui
         awardtablemodel.h awardtablemodel.cpp
 

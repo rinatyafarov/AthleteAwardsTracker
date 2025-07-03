@@ -5,12 +5,18 @@
 #include <QMessageBox>
 #include <QCryptographicHash>
 #include <QDebug>
+#include <QRegularExpressionValidator>
 
 RegisterDialog::RegisterDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::RegisterDialog)
 {
     ui->setupUi(this);
+
+    // Добавляем валидатор для email
+    QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    QValidator *emailValidator = new QRegularExpressionValidator(emailRegex, this);
+    ui->emailLineEdit->setValidator(emailValidator);
 }
 
 RegisterDialog::~RegisterDialog()
@@ -43,6 +49,21 @@ void RegisterDialog::on_registerButton_clicked()
         return;
     }
 
+    // Check email validity using the validator
+    QString input = email;
+    int pos = 0;
+    QValidator::State state = ui->emailLineEdit->validator()->validate(input, pos);
+    if (state != QValidator::Acceptable) {
+        QMessageBox::warning(this, "Registration Error", "Invalid email format.");
+        return;
+    }
+
+    // Password Validation
+    if (password.length() < 8) {
+        QMessageBox::warning(this, "Registration Error", "Password must be at least 8 characters long.");
+        return;
+    }
+
     // Hash password
     QByteArray passwordBytes = password.toUtf8();
     QByteArray hashedPasswordBytes = QCryptographicHash::hash(passwordBytes, QCryptographicHash::Sha256);
@@ -50,12 +71,9 @@ void RegisterDialog::on_registerButton_clicked()
 
     // Check if login already exists
     DatabaseManager& dbManager = DatabaseManager::getInstance();
-    QList<Athlete> existingAthletes = dbManager.getAllAthletes();
-    for (const Athlete& athlete : existingAthletes) {
-        if (athlete.getLogin() == login) {
-            QMessageBox::warning(this, "Registration Error", "This login is already taken.");
-            return;
-        }
+    if (dbManager.loginExists(login)) {
+        QMessageBox::warning(this, "Registration Error", "This login is already taken.");
+        return;
     }
 
     // Create new athlete

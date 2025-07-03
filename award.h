@@ -55,6 +55,11 @@ public:
     QJsonObject toJson() const;
     static Award fromJson(const QJsonObject &json);
 
+    int getAthleteId() const { return m_athleteId; }
+    void setAthleteId(int athleteId) { m_athleteId = athleteId; }
+
+
+
 private:
     int m_id;
     QString m_name;
@@ -64,7 +69,8 @@ private:
     QString m_discipline;
     CompetitionLevel m_level;
     int m_place; // Changed type to int
-    QString m_document;
+    QString m_document;\
+    int m_athleteId;
 };
 
 #endif // AWARD_H

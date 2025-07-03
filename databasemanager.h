@@ -31,6 +31,8 @@ public:
 
     QSqlDatabase& getDatabase() { return m_db; } // Add this method
 
+    bool loginExists(const QString& login);
+
 private:
     DatabaseManager();
     ~DatabaseManager() override;

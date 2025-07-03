@@ -2,20 +2,35 @@
 #include <QBrush>
 #include "MainWindow.h"
 
-AwardTableModel::AwardTableModel(QObject *parent) : QAbstractTableModel(parent)
+AwardTableModel::AwardTableModel(QObject *parent)
+    : QAbstractTableModel(parent), m_searchText(""), m_sportFilter(""), m_levelFilter("")
 {
+}
+
+void AwardTableModel::filterAwards(const QString& sport, const QString& level)
+{
+    beginResetModel();
+    m_sportFilter = sport;
+    m_levelFilter = level;
+
+    m_filteredAwards.clear();
+
+    for (const Award& award : m_awards) {
+        bool sportMatch = m_sportFilter.isEmpty() || MainWindow::sportTypeToString(award.getSport()) == m_sportFilter;
+        bool levelMatch = m_levelFilter.isEmpty() || MainWindow::competitionLevelToString(award.getLevel()) == m_levelFilter;
+
+        if (sportMatch && levelMatch) {
+            m_filteredAwards.append(award);
+        }
+    }
+    endResetModel();
 }
 
 int AwardTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return m_awards.size();
-}
-
-int AwardTableModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return 8; // Number of columns
+    bool isFiltered = !(m_sportFilter.isEmpty() && m_levelFilter.isEmpty());
+    return isFiltered ? m_filteredAwards.size() : m_awards.size();
 }
 
 QVariant AwardTableModel::data(const QModelIndex &index, int role) const
@@ -24,17 +39,17 @@ QVariant AwardTableModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     int row = index.row();
-    int col = index.column();
 
-    if (row < 0 || row >= m_awards.size())
+    const QList<Award>& currentAwards = (m_sportFilter.isEmpty() && m_levelFilter.isEmpty()) ? m_awards : m_filteredAwards;
+
+    if (row < 0 || row >= currentAwards.size())
         return QVariant();
 
-    const Award& award = m_awards[row];
-
+    const Award& award = currentAwards[row];
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
-        switch (col) {
+        switch (index.column()) {
         case 0: return award.getName();
         case 1: return award.getDate().toString("dd.MM.yyyy");
         case 2: return award.getLocation();
@@ -45,20 +60,17 @@ QVariant AwardTableModel::data(const QModelIndex &index, int role) const
         case 7: return award.getDocument();
         default: return QVariant();
         }
-
-    case IdRole: return award.getId(); // Check this
-    case NameRole: return award.getName(); // Check this
-    case DateRole: return award.getDate(); // Check this
-    case LocationRole: return award.getLocation(); // Check this
-    case SportRole: return static_cast<int>(award.getSport()); // Check this
-    case DisciplineRole: return award.getDiscipline(); // Check this
-    case LevelRole: return static_cast<int>(award.getLevel()); // Check this
-    case PlaceRole: return award.getPlace(); // Check this
-    case DocumentRole: return award.getDocument(); // Check this
+    case IdRole: return award.getId();
+    case NameRole: return award.getName();
+    case DateRole: return award.getDate();
+    case LocationRole: return award.getLocation();
+    case SportRole: return static_cast<int>(award.getSport());
+    case DisciplineRole: return award.getDiscipline();
+    case LevelRole: return static_cast<int>(award.getLevel());
+    case PlaceRole: return award.getPlace();
+    case DocumentRole: return award.getDocument();
     default: return QVariant();
-
     }
-
 }
 
 QVariant AwardTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -83,6 +95,8 @@ void AwardTableModel::setAwards(const QList<Award> &awards)
 {
     beginResetModel();
     m_awards = awards;
+    m_filteredAwards = awards;
+    m_searchText = "";
     endResetModel();
 }
 
@@ -118,4 +132,32 @@ Qt::ItemFlags AwardTableModel::flags(const QModelIndex &index) const {
     }
 
     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+}
+
+void AwardTableModel::searchAwards(const QString &searchText)
+{
+    beginResetModel();
+    m_searchText = searchText;
+    m_filteredAwards.clear();
+
+    if (searchText.isEmpty()) {
+        m_filteredAwards = m_awards; // Restore the filtered list to the original list
+        endResetModel();
+        return;
+    }
+
+    for (const Award &award : m_awards) {
+        if (award.getName().contains(searchText, Qt::CaseInsensitive) ||
+            award.getLocation().contains(searchText, Qt::CaseInsensitive) ||
+            award.getDiscipline().contains(searchText, Qt::CaseInsensitive)) {
+            m_filteredAwards.append(award);
+        }
+    }
+
+    endResetModel();
+}
+int AwardTableModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent);
+    return 8; // Number of columns
 }

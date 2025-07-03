@@ -31,7 +31,6 @@ private slots:
     void on_editAwardButton_clicked();
     void on_deleteAwardButton_clicked();
     void on_searchLineEdit_textChanged(const QString &arg1);
-    void on_filterButton_clicked();
     void on_reportButton_clicked();
     void updateAwardList();
     void on_awardListWidget_itemDoubleClicked(QListWidgetItem *item);
@@ -39,6 +38,9 @@ private slots:
     void on_infoButton_clicked();
     void on_logoutButton_clicked();
     void on_awardsTableView_doubleClicked(const QModelIndex &index);
+    void on_sportFilterComboBox_currentIndexChanged(int index);
+    void on_levelFilterComboBox_currentIndexChanged(int index);
+
 
 private:
     Ui::MainWindow *ui;
@@ -48,6 +50,9 @@ private:
     int m_loggedInAthleteId; // Store the athlete's ID
 
     AwardTableModel *m_awardTableModel; // Add member
+
+    void fillSportComboBox();
+    void fillLevelComboBox();
 
 };
 

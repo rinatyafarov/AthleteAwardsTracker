@@ -27,17 +27,25 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     m_awardTableModel = new AwardTableModel(this); // Initialize the model
     ui->awardsTableView->setModel(m_awardTableModel);
 
+    // Connect signals and slots
     connect(ui->addAwardButton, &QPushButton::clicked, this, &MainWindow::on_addAwardButton_clicked);
     connect(ui->editAwardButton, &QPushButton::clicked, this, &MainWindow::on_editAwardButton_clicked);
     connect(ui->deleteAwardButton, &QPushButton::clicked, this, &MainWindow::on_deleteAwardButton_clicked);
     connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
-    connect(ui->filterButton, &QPushButton::clicked, this, &MainWindow::on_filterButton_clicked);
+
+    connect(ui->sportFilterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_sportFilterComboBox_currentIndexChanged);
+    connect(ui->levelFilterComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &MainWindow::on_levelFilterComboBox_currentIndexChanged);
+
     connect(ui->reportButton, &QPushButton::clicked, this, &MainWindow::on_reportButton_clicked);
     connect(ui->editProfileButton, &QPushButton::clicked, this, &MainWindow::on_editProfileButton_clicked);
     connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::on_infoButton_clicked);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::on_logoutButton_clicked);
 
     connect(ui->awardsTableView, &QTableView::doubleClicked, this, &MainWindow::on_awardsTableView_doubleClicked);
+
+    // Initialize the combo boxes
+    fillSportComboBox();
+    fillLevelComboBox();
 
     updateAwardList();
 }
@@ -96,7 +104,6 @@ void MainWindow::on_editAwardButton_clicked()
 
     // Get the Award object using the ID
     Award selectedAward = m_awards.at(index.row());
-    // Build and open EditAwardDialog as before
 
     EditAwardDialog dialog(selectedAward, this);
 
@@ -107,7 +114,7 @@ void MainWindow::on_editAwardButton_clicked()
 
     if (dialog.exec() == QDialog::Accepted) {
         Award editedAward = dialog.getAward();
-        //editedAward.setId(selectedAward.getId());
+
         DatabaseManager& dbManager = DatabaseManager::getInstance();
         dbManager.updateAward(editedAward);
         updateAwardList();
@@ -141,13 +148,10 @@ void MainWindow::on_deleteAwardButton_clicked()
 
 void MainWindow::on_searchLineEdit_textChanged(const QString &arg1)
 {
-    QMessageBox::information(this, "Поиск", "Функция поиска пока не реализована.");
+    qDebug() << "Search text changed to: " << arg1;
+    m_awardTableModel->searchAwards(arg1);
 }
 
-void MainWindow::on_filterButton_clicked()
-{
-    QMessageBox::information(this, "Фильтр", "Функция фильтрации пока не реализована.");
-}
 
 void MainWindow::updateAwardList()
 {
@@ -242,7 +246,8 @@ void MainWindow::on_infoButton_clicked()
 
 void MainWindow::on_editProfileButton_clicked()
 {
-    QMessageBox::information(this, "Редактировать профиль", "Функция редактирования профиля пока не реализована.");
+    AthleteProfileWindow *profileWindow = new AthleteProfileWindow(m_loggedInAthlete, this);
+    profileWindow->show();
 }
 
 void MainWindow::on_logoutButton_clicked()
@@ -251,4 +256,28 @@ void MainWindow::on_logoutButton_clicked()
 
     LoginWindow *loginWindow = new LoginWindow();
     loginWindow->show();
+}
+void MainWindow::on_sportFilterComboBox_currentIndexChanged(int index)
+{
+    QString sport = ui->sportFilterComboBox->itemText(index);
+    m_awardTableModel->filterAwards(sport, ui->levelFilterComboBox->currentText());
+}
+
+void MainWindow::on_levelFilterComboBox_currentIndexChanged(int index)
+{
+    QString level = ui->levelFilterComboBox->itemText(index);
+    m_awardTableModel->filterAwards(ui->sportFilterComboBox->currentText(), level);
+}
+void MainWindow::fillSportComboBox()
+{
+    QStringList sports = {"", "Легкая атлетика", "Плавание", "Велоспорт", "Командный спорт", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бокс", "Другое"};
+    ui->sportFilterComboBox->addItems(sports);
+    qDebug() << "Sport ComboBox count: " << ui->sportFilterComboBox->count(); // Добавляем отладочный вывод
+}
+
+void MainWindow::fillLevelComboBox()
+{
+    QStringList levels = {"", "Местный", "Региональный", "Национальный", "Международный", "Олимпийский"};
+    ui->levelFilterComboBox->addItems(levels);
+    qDebug() << "Level ComboBox count: " << ui->levelFilterComboBox->count(); // Добавляем отладочный вывод
 }

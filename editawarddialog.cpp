@@ -2,7 +2,7 @@
 #include "ui_editawarddialog.h"
 #include <QMessageBox>
 
-EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) : // Check this
+EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditAwardDialog),
     m_award(award)
@@ -16,8 +16,17 @@ EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) : // Check
     ui->sportComboBox->setCurrentIndex(static_cast<int>(m_award.getSport()));
     ui->disciplineLineEdit->setText(m_award.getDiscipline());
     ui->levelComboBox->setCurrentIndex(static_cast<int>(m_award.getLevel()));
-    ui->placeLineEdit->setText(QString::number(m_award.getPlace())); // Convert int to QString
+    ui->placeLineEdit->setText(QString::number(m_award.getPlace()));
     ui->documentLineEdit->setText(m_award.getDocument());
+
+    // Validate nameLineEdit
+    QRegularExpression nameRegex("^[a-zA-Z0-9 ]+$");
+    QValidator *nameValidator = new QRegularExpressionValidator(nameRegex, this);
+    ui->nameLineEdit->setValidator(nameValidator);
+
+    // Validate placeLineEdit
+    QIntValidator *placeValidator = new QIntValidator(0, 10, this);
+    ui->placeLineEdit->setValidator(placeValidator);
 }
 
 EditAwardDialog::~EditAwardDialog()
@@ -27,25 +36,46 @@ EditAwardDialog::~EditAwardDialog()
 
 Award EditAwardDialog::getAward() const
 {
-    Award award;
-    award.setId(m_award.getId());  // Ensure to keep the original ID
-    award.setName(ui->nameLineEdit->text());
-    award.setDate(ui->dateEdit->date());
-    award.setLocation(ui->locationLineEdit->text());
-    award.setSport(static_cast<SportType>(ui->sportComboBox->currentIndex()));
-    award.setDiscipline(ui->disciplineLineEdit->text());
-    award.setLevel(static_cast<CompetitionLevel>(ui->levelComboBox->currentIndex()));
-    award.setPlace(ui->placeLineEdit->text().toInt()); // Convert QString to int
-    award.setDocument(ui->documentLineEdit->text());
-    return award;
+    return m_award;
 }
 
 void EditAwardDialog::on_buttonBox_accepted()
 {
-    if (ui->nameLineEdit->text().isEmpty()) {
-        QMessageBox::warning(this, "Warning", "Award name cannot be empty.");
+    QString name = ui->nameLineEdit->text();
+    QString placeText = ui->placeLineEdit->text();
+
+    QString validatedName = name;
+    int posName = 0;
+    QValidator::State nameState = ui->nameLineEdit->validator()->validate(validatedName, posName);
+
+    QString validatedPlaceText = placeText;
+    int posPlaceText = 0;
+    QValidator::State placeState = ui->placeLineEdit->validator()->validate(validatedPlaceText, posPlaceText);
+
+    if (name.isEmpty()) {
+        QMessageBox::warning(this, "Предупреждение", "Название награды не может быть пустым.");
         return;
     }
+
+    if (placeText.isEmpty()) {
+        QMessageBox::warning(this, "Предупреждение", "Место не может быть пустым.");
+        return;
+    }
+
+    if (nameState != QValidator::Acceptable) {
+        QMessageBox::warning(this, "Предупреждение", "Неверный формат названия награды.");
+        return;
+    }
+
+    if (placeState != QValidator::Acceptable) {
+        QMessageBox::warning(this, "Предупреждение", "Неверный формат места.");
+        return;
+    }
+
+    // Update the award data
+    m_award.setName(name);
+    m_award.setPlace(placeText.toInt()); // Convert QString to int
+
     accept();
 }
 
