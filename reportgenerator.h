@@ -1,22 +1,26 @@
 #ifndef REPORTGENERATOR_H
 #define REPORTGENERATOR_H
 
-#include <QWidget>
+#include <QObject>
+#include <QList>
+#include <QString>
+#include <QPainter>
+#include <QtPrintSupport/QPrinter> // Add this line
+#include <QTextDocument>
+#include "Award.h"
 
-namespace Ui {
-class ReportGenerator;
-}
-
-class ReportGenerator : public QWidget
+class ReportGenerator : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ReportGenerator(QWidget *parent = nullptr);
-    ~ReportGenerator();
+    explicit ReportGenerator(QObject *parent = nullptr);
+    bool generateReport(const QList<Award>& awards, const QString& filePath);
 
 private:
-    Ui::ReportGenerator *ui;
+    void drawHeader(QPainter *painter);
+    void drawAwardTable(QPainter *painter, const QList<Award>& awards);
+    void drawFooter(QPainter *painter);
 };
 
 #endif // REPORTGENERATOR_H

@@ -9,6 +9,8 @@
 #include <QListWidgetItem> // Include QListWidgetItem
 #include <QString>  // Include QString
 #include "AwardTableModel.h" // Include AwardTableModel
+#include "ReportGenerator.h" // Include ReportGenerator
+#include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,7 +43,6 @@ private slots:
     void on_sportFilterComboBox_currentIndexChanged(int index);
     void on_levelFilterComboBox_currentIndexChanged(int index);
 
-
 private:
     Ui::MainWindow *ui;
     DatabaseManager& m_dataManager; // Initialize in constructor
@@ -50,10 +51,10 @@ private:
     int m_loggedInAthleteId; // Store the athlete's ID
 
     AwardTableModel *m_awardTableModel; // Add member
+    ReportGenerator *m_reportGenerator = new ReportGenerator(this); // Add ReportGenerator
 
     void fillSportComboBox();
     void fillLevelComboBox();
-
 };
 
 #endif // MAINWINDOW_H

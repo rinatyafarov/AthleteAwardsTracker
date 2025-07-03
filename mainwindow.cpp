@@ -12,7 +12,8 @@
 #include <QDialogButtonBox>
 #include <QDebug>
 #include "LoginWindow.h"
-#include "AwardTableModel.h" // Include AwardTableModel
+#include "AwardTableModel.h"
+#include "ReportGenerator.h"// Include AwardTableModel
 
 MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     : QMainWindow(parent)
@@ -182,31 +183,12 @@ void MainWindow::on_awardsTableView_doubleClicked(const QModelIndex &index)
 
 void MainWindow::on_reportButton_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Сохранить отчет", "", "CSV Файлы (*.csv);;Все файлы (*)");
-    if (!fileName.isEmpty()) {
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            QTextStream stream(&file);
-            stream.setEncoding(QStringConverter::Utf8);
-
-            stream << "Название,Дата,Место проведения,Вид спорта,Дисциплина,Уровень,Занятое место,Подтверждающий документ\n";
-
-            for (int i = 0; i < m_awardTableModel->rowCount(); ++i) {
-                Award award = m_awardTableModel->data(m_awardTableModel->index(i, 0), AwardTableModel::IdRole).value<Award>();
-                stream << award.getName() << ","
-                       << award.getDate().toString("yyyy-MM-dd") << ","
-                       << award.getLocation() << ","
-                       << sportTypeToString(award.getSport()) << ","
-                       << award.getDiscipline() << ","
-                       << competitionLevelToString(award.getLevel()) << ","
-                       << award.getPlace() << ","
-                       << award.getDocument() << "\n";
-            }
-
-            file.close();
-            QMessageBox::information(this, "Отчет сохранен", "Отчет успешно сохранен в: " + fileName);
+    QString filePath = QFileDialog::getSaveFileName(this, "Сохранить отчет", "", "PDF Files (*.pdf)");
+    if (!filePath.isEmpty()) {
+        if (m_reportGenerator->generateReport(m_awards, filePath)) {
+            QMessageBox::information(this, "Отчет создан", "Отчет успешно сохранен в " + filePath);
         } else {
-            QMessageBox::critical(this, "Ошибка", "Не удалось сохранить отчет в: " + fileName);
+            QMessageBox::critical(this, "Ошибка", "Не удалось создать отчет.");
         }
     }
 }
