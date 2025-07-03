@@ -48,11 +48,14 @@ mkdir build && cd build
 cmake -G Ninja -DCMAKE_PREFIX_PATH=/path/to/qt -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ./AthleteAwardsTracker
+```
 
 ### 2.3 Консольная сборка (Windows)
-cmd
-mkdir build
+```mkdir build
 cd build
 cmake -G "Ninja" -DCMAKE_PREFIX_PATH="C:\Qt\6.8.2\mingw_64\lib\cmake" ..
 cmake --build .
 .\AthleteAwardsTracker.exe
+```
+
+
