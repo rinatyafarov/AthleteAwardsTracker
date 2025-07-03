@@ -2,34 +2,48 @@
 #include "ui_mainwindow.h"
 #include "AddAwardDialog.h"
 #include "EditAwardDialog.h"
-#include "AwardDetailsDialog.h"// Include AwardDetailsDialog
+#include "AwardDetailsDialog.h" // Include AwardDetailsDialog
 #include "AthleteProfileWindow.h"
+#include "DatabaseManager.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QTextStream>
-//#include <QTextCodec>
 #include <QVariant> // Для QVariant::fromValue
 #include <QDialogButtonBox>
+#include <QDebug>
+#include "LoginWindow.h"
 
-
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_loggedInAthlete(loggedInAthlete)
+    , m_dataManager(DataManager::getInstance())  // Correctly initialize m_dataManager
 {
     ui->setupUi(this);
-    updateAwardList();
-    connect(&m_dataManager, &DataManager::awardsChanged, this, &MainWindow::updateAwardList);
 
-    // Подключение сигнала doubleClicked для отображения деталей награды
-    connect(ui->awardListWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::on_awardListWidget_itemDoubleClicked);
-    connect(ui->athleteListWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::on_athleteDoubleClicked);
+    //  Отображение информации об авторизованном пользователе
+    ui->userNameLabel->setText(m_loggedInAthlete.getFirstName() + " " + m_loggedInAthlete.getLastName());
+
+    // Подключение сигналов к слотам
+    connect(ui->addAwardButton, &QPushButton::clicked, this, &MainWindow::on_addAwardButton_clicked);
+    connect(ui->editAwardButton, &QPushButton::clicked, this, &MainWindow::on_editAwardButton_clicked);
+    connect(ui->deleteAwardButton, &QPushButton::clicked, this, &MainWindow::on_deleteAwardButton_clicked);
+    connect(ui->searchLineEdit, &QLineEdit::textChanged, this, &MainWindow::on_searchLineEdit_textChanged);
+    connect(ui->filterButton, &QPushButton::clicked, this, &MainWindow::on_filterButton_clicked);
+    connect(ui->reportButton, &QPushButton::clicked, this, &MainWindow::on_reportButton_clicked); // Connect Report Button
+    connect(ui->editProfileButton, &QPushButton::clicked, this, &MainWindow::on_editProfileButton_clicked); // Connect Edit Profile Button
+    connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::on_infoButton_clicked);         // Connect Info Button
+    connect(ui->awardsListWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::on_awardListWidget_itemDoubleClicked);
+    connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::on_logoutButton_clicked);
+
+    //  Обновление списка наград
+    updateAwardList();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-
 
 void MainWindow::on_addAwardButton_clicked()
 {
@@ -43,21 +57,21 @@ void MainWindow::on_addAwardButton_clicked()
 
     if (dialog.exec() == QDialog::Accepted) {
         Award newAward = dialog.getAward();
-        m_dataManager.addAward(newAward);
+        DatabaseManager& dbManager = DatabaseManager::getInstance(); // Получаем экземпляр DatabaseManager
+        dbManager.addAward(newAward);
         updateAwardList();
     }
 }
 
-
 void MainWindow::on_editAwardButton_clicked()
 {
-    QListWidgetItem *selectedItem = ui->awardListWidget->currentItem();
+    QListWidgetItem *selectedItem = ui->awardsListWidget->currentItem();
     if (!selectedItem) {
         QMessageBox::warning(this, "Предупреждение", "Пожалуйста, выберите награду для редактирования.");
         return;
     }
 
-    int index = ui->awardListWidget->currentRow();
+    int index = ui->awardsListWidget->currentRow();
     if (index >= 0 && index < m_awards.size()) {
         Award selectedAward = m_awards[index];
         EditAwardDialog dialog(selectedAward, this);
@@ -70,45 +84,47 @@ void MainWindow::on_editAwardButton_clicked()
 
         if (dialog.exec() == QDialog::Accepted) {
             Award editedAward = dialog.getAward();
-            m_dataManager.updateAward(editedAward);
+            DatabaseManager& dbManager = DatabaseManager::getInstance(); // Получаем экземпляр DatabaseManager
+            dbManager.updateAward(editedAward);
             updateAwardList();
         }
     }
 }
 
-
 void MainWindow::on_deleteAwardButton_clicked()
 {
-    QListWidgetItem *selectedItem = ui->awardListWidget->currentItem();
+    QListWidgetItem *selectedItem = ui->awardsListWidget->currentItem();
     if (!selectedItem) {
         QMessageBox::warning(this, "Предупреждение", "Пожалуйста, выберите награду для удаления.");
         return;
     }
 
-    int index = ui->awardListWidget->currentRow();
+    int index = ui->awardsListWidget->currentRow();
     if (index >= 0 && index < m_awards.size()) {
         Award awardToDelete = m_awards[index];
         QMessageBox::StandardButton reply = QMessageBox::question(this, "Удаление награды",
                                                                   "Вы уверены, что хотите удалить эту награду?",
                                                                   QMessageBox::Yes | QMessageBox::No);
         if (reply == QMessageBox::Yes) {
-            m_dataManager.removeAward(awardToDelete);
+            DatabaseManager& dbManager = DatabaseManager::getInstance(); // Получаем экземпляр DatabaseManager
+            dbManager.removeAward(awardToDelete);
             updateAwardList();
         }
     }
 }
 
-
 void MainWindow::on_searchLineEdit_textChanged(const QString &arg1)
 {
-    QList<Award> searchResults = m_dataManager.searchAwards(arg1);
-    ui->awardListWidget->clear();
-    for (const Award& award : searchResults) {
-        QListWidgetItem *item = new QListWidgetItem(award.getName());
-        // Сохраняем весь объект Award в data для последующего использования
-        item->setData(Qt::UserRole, QVariant::fromValue(award));
-        ui->awardListWidget->addItem(item);
-    }
+    //  реализовать поиск
+    //QList searchResults = m_dataManager.searchAwards(arg1);  Сейчас не работает, так как нет DataManager
+    // ui->awardsListWidget->clear();
+
+    //for (const Award& award : searchResults) {
+    //QListWidgetItem *item = new QListWidgetItem(award.getName());
+    // item->setData(Qt::UserRole, QVariant::fromValue(award));  // Сохраняем весь объект Award в data для последующего использования
+    //ui->awardsListWidget->addItem(item);
+    //}
+    QMessageBox::information(this, "Поиск", "Функция поиска пока не реализована.");
 }
 
 void MainWindow::on_filterButton_clicked()
@@ -117,6 +133,27 @@ void MainWindow::on_filterButton_clicked()
     QMessageBox::information(this, "Фильтр", "Функция фильтрации пока не реализована.");
 }
 
+void MainWindow::updateAwardList()
+{
+    DatabaseManager& dbManager = DatabaseManager::getInstance();
+    QList awards = dbManager.getAllAwards();
+    ui->awardsListWidget->clear();
+    for (const Award& award : awards) {
+        QListWidgetItem *item = new QListWidgetItem(award.getName());
+        item->setData(Qt::UserRole, QVariant::fromValue(award));  // Сохраняем весь объект Award в data для последующего использования
+        ui->awardsListWidget->addItem(item);
+    }
+    m_awards = awards;
+}
+
+void MainWindow::on_awardListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    if (item) {
+        Award award = item->data(Qt::UserRole).value<Award>(); // Corrected line
+        AwardDetailsDialog detailsDialog(award, this);
+        detailsDialog.exec(); // Отображаем диалог деталей
+    }
+}
 
 void MainWindow::on_reportButton_clicked()
 {
@@ -150,33 +187,6 @@ void MainWindow::on_reportButton_clicked()
     }
 }
 
-// Слот для обработки двойного клика по элементу списка
-void MainWindow::on_awardListWidget_itemDoubleClicked(QListWidgetItem *item)
-{
-    // Получаем объект Award из данных элемента списка
-    Award selectedAward = item->data(Qt::UserRole).value<Award>();
-    AwardDetailsDialog dialog(selectedAward, this);
-    dialog.exec(); // Отображаем диалог деталей
-}
-
-void MainWindow::on_athleteDoubleClicked(QListWidgetItem *item) {
-    Athlete athlete = item->data(Qt::UserRole).value<Athlete>();
-    AthleteProfileWindow *profileWindow = new AthleteProfileWindow(athlete, this); // Создаем новое окно профиля
-    profileWindow->show(); // Показываем окно профиля
-}
-
-void MainWindow::updateAwardList()
-{
-    m_awards = m_dataManager.getAwards();
-    ui->awardListWidget->clear();
-    for (const Award& award : m_awards) {
-        QListWidgetItem *item = new QListWidgetItem(award.getName());
-        // Сохраняем весь объект Award в data для последующего использования
-        item->setData(Qt::UserRole, QVariant::fromValue(award));
-        ui->awardListWidget->addItem(item);
-    }
-}
-
 QString MainWindow::sportTypeToString(SportType type) {
     switch (type) {
     case SportType::Athletics: return "Легкая атлетика";
@@ -202,4 +212,24 @@ QString MainWindow::competitionLevelToString(CompetitionLevel level) {
     case CompetitionLevel::Olympic: return "Олимпийский";
     default: return "Неизвестно";
     }
+}
+
+void MainWindow::on_infoButton_clicked()
+{
+    // Implement info functionality
+    AthleteProfileWindow *profileWindow = new AthleteProfileWindow(m_loggedInAthlete, this); // Create new profile window
+    profileWindow->show(); // Show profile window
+}
+
+void MainWindow::on_editProfileButton_clicked()
+{
+    // Implement edit profile functionality
+    QMessageBox::information(this, "Редактировать профиль", "Функция редактирования профиля пока не реализована.");
+}
+void MainWindow::on_logoutButton_clicked()
+{
+    LoginWindow *loginWindow = new LoginWindow(); // Create a new LoginWindow
+    loginWindow->show(); // Show the login window
+
+    this->close(); // Close the main window
 }

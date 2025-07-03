@@ -4,6 +4,7 @@
 #include "databasemanager.h"
 #include <QMessageBox>
 #include <QCryptographicHash>
+#include <QDebug>
 
 LoginWindow::LoginWindow(QWidget *parent) :
     QDialog(parent),
@@ -39,8 +40,8 @@ void LoginWindow::on_loginButton_clicked()
     }
 
     if (found) {
-        qDebug() << "Login successful for user: " << login;  // Add this line
-        emit loginSuccessful(login);
+        qDebug() << "Login Successful, emitting signal with Athlete: " << loggedInAthlete.getLogin(); // Debugging
+        emit loginSuccessful(loggedInAthlete); // Change
         accept();
     } else {
         QMessageBox::warning(this, "Login Failed", "Incorrect login or password.");
@@ -50,8 +51,7 @@ void LoginWindow::on_loginButton_clicked()
 void LoginWindow::on_registerButton_clicked()
 {
     RegisterDialog registerDialog(this);
-    connect(&registerDialog, &RegisterDialog::registrationSuccessful,
-            this, &LoginWindow::show); // Connect signal
+    connect(&registerDialog, &RegisterDialog::registrationSuccessful, this, &LoginWindow::show);
     registerDialog.exec();
 }
 

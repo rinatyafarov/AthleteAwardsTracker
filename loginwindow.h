@@ -2,6 +2,7 @@
 #define LOGINWINDOW_H
 
 #include <QDialog>
+#include "Athlete.h"  // Include Athlete
 
 namespace Ui {
 class LoginWindow;
@@ -16,7 +17,7 @@ public:
     ~LoginWindow() override;
 
 signals:
-    void loginSuccessful(const QString& login);
+    void loginSuccessful(Athlete athlete);  // Changed Signal
 
 private slots:
     void on_loginButton_clicked();

@@ -4,6 +4,7 @@
 #include "Athlete.h" // Include Athlete
 #include <QMessageBox>
 #include <QCryptographicHash>
+#include <QDebug>
 
 RegisterDialog::RegisterDialog(QWidget *parent) :
     QDialog(parent),
@@ -64,6 +65,7 @@ void RegisterDialog::on_registerButton_clicked()
     bool success = dbManager.addAthlete(newAthlete);
     if (success) {
         QMessageBox::information(this, "Registration Successful", "You have successfully registered!");
+        qDebug() << "Registration Success, emitting registrationSuccessful()";
         emit registrationSuccessful();  // Emit the signal
         close();  // Close the RegisterDialog
     } else {

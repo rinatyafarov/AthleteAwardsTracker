@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QDebug>  // Include QDebug
+#include "Athlete.h"
 
 int main(int argc, char *argv[])
 {
@@ -22,9 +23,9 @@ int main(int argc, char *argv[])
 
     // Connect the loginSuccessful signal to a lambda function that shows the main window
     QObject::connect(&loginWindow, &LoginWindow::loginSuccessful,
-                     [&]() { // No argument needed
-                         qDebug() << "Login successful, showing main window";  // Add debug message
-                         MainWindow *w = new MainWindow(); // Create MainWindow on the heap
+                     [&](Athlete loggedInAthlete) { // Capture Athlete object
+                         qDebug() << "Login successful for user: " << loggedInAthlete.getLogin();
+                         MainWindow *w = new MainWindow(nullptr, loggedInAthlete); // Pass the Athlete object
                          w->show();
                      });
 
