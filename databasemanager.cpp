@@ -122,13 +122,14 @@ void DatabaseManager::addAward(const Award& award)
     }
 }
 
-void DatabaseManager::updateAward(const Award& award)
-{
+void DatabaseManager::updateAward(const Award& award) {
     QSqlQuery query(m_db);
+    qDebug() << "Updating award with ID: " << award.getId() << " and name: " << award.getName();
     query.prepare("UPDATE awards SET name = :name, date = :date, location = :location, "
                   "sport = :sport, discipline = :discipline, level = :level, "
                   "place = :place, document = :document WHERE id = :id");
-    query.bindValue(":id", award.getId()); // Assuming you have getId()
+
+    query.bindValue(":id", award.getId());
     query.bindValue(":name", award.getName());
     query.bindValue(":date", award.getDate());
     query.bindValue(":location", award.getLocation());
@@ -198,16 +199,16 @@ void DatabaseManager::updateAthlete(const Athlete& athlete)
 {
     QSqlQuery query(m_db);
     query.prepare("UPDATE athletes SET firstName = :firstName, lastName = :lastName, "
-                  "dateOfBirth = :dateOfBirth, email = :email, login = :login, "
-                  "password = :password WHERE id = :id");
+                  "dateOfBirth = :dateOfBirth, email = :email, login = :login " // Remove password
+                  "WHERE id = :id");
 
-    query.bindValue(":id", athlete.getId()); // Assuming you have getId()
+    query.bindValue(":id", athlete.getId());
     query.bindValue(":firstName", athlete.getFirstName());
     query.bindValue(":lastName", athlete.getLastName());
     query.bindValue(":dateOfBirth", athlete.getDateOfBirth());
     query.bindValue(":email", athlete.getEmail());
     query.bindValue(":login", athlete.getLogin());
-    query.bindValue(":password", athlete.getPassword());
+    //query.bindValue(":password", athlete.getPassword()); // Remove password binding
 
     if (!query.exec()) {
         qDebug() << "Error updating athlete: " << query.lastError().text();

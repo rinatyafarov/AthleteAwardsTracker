@@ -1,8 +1,10 @@
+// EditAwardDialog.h
 #ifndef EDITAWARDDIALOG_H
 #define EDITAWARDDIALOG_H
 
 #include <QDialog>
 #include "Award.h"
+#include <QStringList>
 
 namespace Ui {
 class EditAwardDialog;
@@ -13,12 +15,10 @@ class EditAwardDialog : public QDialog
     Q_OBJECT
 
 public:
-    EditAwardDialog(const Award &award, QWidget *parent = nullptr);
+    explicit EditAwardDialog(const Award &award, QWidget *parent = nullptr); // Check this
     ~EditAwardDialog() override;
 
     Award getAward() const;
-
-    // Public methods to fill combo boxes
     void fillSportComboBox(const QStringList& sports);
     void fillLevelComboBox(const QStringList& levels);
 

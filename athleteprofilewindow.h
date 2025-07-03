@@ -1,26 +1,27 @@
 #ifndef ATHLETEPROFILEWINDOW_H
 #define ATHLETEPROFILEWINDOW_H
 
-#include <QMainWindow>
-#include "Athlete.h" // Assuming you have an Athlete class
+#include <QDialog>
+#include "Athlete.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class AthleteProfileWindow; }
-QT_END_NAMESPACE
+namespace Ui {
+class AthleteProfileWindow;
+}
 
-class AthleteProfileWindow : public QMainWindow
+class AthleteProfileWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    AthleteProfileWindow(Athlete athlete, QWidget *parent = nullptr);
+    explicit AthleteProfileWindow(Athlete athlete, QWidget *parent = nullptr);
     ~AthleteProfileWindow() override;
+
+private slots:
+    void on_saveButton_clicked();
 
 private:
     Ui::AthleteProfileWindow *ui;
     Athlete m_athlete;
-
-    void populateUI();
 };
 
 #endif // ATHLETEPROFILEWINDOW_H

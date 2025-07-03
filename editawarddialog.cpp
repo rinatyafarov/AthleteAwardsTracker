@@ -2,7 +2,7 @@
 #include "ui_editawarddialog.h"
 #include <QMessageBox>
 
-EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) :
+EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) : // Check this
     QDialog(parent),
     ui(new Ui::EditAwardDialog),
     m_award(award)
@@ -28,6 +28,7 @@ EditAwardDialog::~EditAwardDialog()
 Award EditAwardDialog::getAward() const
 {
     Award award;
+    award.setId(m_award.getId());  // Ensure to keep the original ID
     award.setName(ui->nameLineEdit->text());
     award.setDate(ui->dateEdit->date());
     award.setLocation(ui->locationLineEdit->text());
@@ -41,7 +42,6 @@ Award EditAwardDialog::getAward() const
 
 void EditAwardDialog::on_buttonBox_accepted()
 {
-    // Basic validation
     if (ui->nameLineEdit->text().isEmpty()) {
         QMessageBox::warning(this, "Warning", "Award name cannot be empty.");
         return;

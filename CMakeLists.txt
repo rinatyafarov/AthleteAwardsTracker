@@ -38,6 +38,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         pdfexporter.h pdfexporter.cpp
         csvexporter.h csvexporter.cpp
         registerdialog.h registerdialog.cpp registerdialog.ui
+        awardtablemodel.h awardtablemodel.cpp
 
 
     )

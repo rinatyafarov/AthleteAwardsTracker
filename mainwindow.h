@@ -8,6 +8,7 @@
 #include "databasemanager.h"
 #include <QListWidgetItem> // Include QListWidgetItem
 #include <QString>  // Include QString
+#include "AwardTableModel.h" // Include AwardTableModel
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,6 +38,7 @@ private slots:
     void on_editProfileButton_clicked();
     void on_infoButton_clicked();
     void on_logoutButton_clicked();
+    void on_awardsTableView_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow *ui;
@@ -44,6 +46,9 @@ private:
     Athlete m_loggedInAthlete;
     QList<Award> m_awards;
     int m_loggedInAthleteId; // Store the athlete's ID
+
+    AwardTableModel *m_awardTableModel; // Add member
+
 };
 
 #endif // MAINWINDOW_H

@@ -12,6 +12,7 @@
 #include <QDialogButtonBox>
 #include <QDebug>
 #include "LoginWindow.h"
+#include "AwardTableModel.h" // Include AwardTableModel
 
 MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     : QMainWindow(parent)
@@ -23,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
 
     ui->userNameLabel->setText(m_loggedInAthlete.getFirstName() + " " + m_loggedInAthlete.getLastName());
 
+    m_awardTableModel = new AwardTableModel(this); // Initialize the model
+    ui->awardsTableView->setModel(m_awardTableModel);
+
     connect(ui->addAwardButton, &QPushButton::clicked, this, &MainWindow::on_addAwardButton_clicked);
     connect(ui->editAwardButton, &QPushButton::clicked, this, &MainWindow::on_editAwardButton_clicked);
     connect(ui->deleteAwardButton, &QPushButton::clicked, this, &MainWindow::on_deleteAwardButton_clicked);
@@ -31,8 +35,9 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     connect(ui->reportButton, &QPushButton::clicked, this, &MainWindow::on_reportButton_clicked);
     connect(ui->editProfileButton, &QPushButton::clicked, this, &MainWindow::on_editProfileButton_clicked);
     connect(ui->infoButton, &QPushButton::clicked, this, &MainWindow::on_infoButton_clicked);
-    connect(ui->awardsListWidget, &QListWidget::itemDoubleClicked, this, &MainWindow::on_awardListWidget_itemDoubleClicked);
     connect(ui->logoutButton, &QPushButton::clicked, this, &MainWindow::on_logoutButton_clicked);
+
+    connect(ui->awardsTableView, &QTableView::doubleClicked, this, &MainWindow::on_awardsTableView_doubleClicked);
 
     updateAwardList();
 }
@@ -40,11 +45,12 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m_awardTableModel;
 }
 
 void MainWindow::on_addAwardButton_clicked()
 {
-    AddAwardDialog dialog(this, m_loggedInAthlete.getId()); // Pass athleteId
+    AddAwardDialog dialog(this, m_loggedInAthlete.getId());
 
     QStringList sports = {"Легкая атлетика", "Плавание", "Велоспорт", "Командный спорт", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бокс", "Другое"};
     QStringList levels = {"Местный", "Региональный", "Национальный", "Международный", "Олимпийский"};
@@ -55,7 +61,7 @@ void MainWindow::on_addAwardButton_clicked()
         Award newAward = dialog.getAward();
         DatabaseManager& dbManager = DatabaseManager::getInstance();
 
-        QSqlQuery query(dbManager.getDatabase()); // Use getDatabase()
+        QSqlQuery query(dbManager.getDatabase());
 
         query.prepare("INSERT INTO awards (name, date, location, sport, discipline, level, place, document, athlete_id) "
                       "VALUES (:name, :date, :location, :sport, :discipline, :level, :place, :document, :athlete_id)");
@@ -78,50 +84,58 @@ void MainWindow::on_addAwardButton_clicked()
 
 void MainWindow::on_editAwardButton_clicked()
 {
-    QListWidgetItem *selectedItem = ui->awardsListWidget->currentItem();
-    if (!selectedItem) {
+    QModelIndex index = ui->awardsTableView->currentIndex();
+
+    if (!index.isValid()) {
         QMessageBox::warning(this, "Предупреждение", "Пожалуйста, выберите награду для редактирования.");
         return;
     }
 
-    int index = ui->awardsListWidget->currentRow();
-    if (index >= 0 && index < m_awards.size()) {
-        Award selectedAward = m_awards[index];
-        EditAwardDialog dialog(selectedAward, this);
+    // Get the ID directly from the model
+    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt(); // Get the ID
 
-        QStringList sports = {"Легкая атлетика", "Плавание", "Велоспорт", "Командный спорт", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бокс", "Другое"};
-        QStringList levels = {"Местный", "Региональный", "Национальный", "Международный", "Олимпийский"};
-        dialog.fillSportComboBox(sports);
-        dialog.fillLevelComboBox(levels);
+    // Get the Award object using the ID
+    Award selectedAward = m_awards.at(index.row());
+    // Build and open EditAwardDialog as before
 
-        if (dialog.exec() == QDialog::Accepted) {
-            Award editedAward = dialog.getAward();
-            DatabaseManager& dbManager = DatabaseManager::getInstance();
-            dbManager.updateAward(editedAward);
-            updateAwardList();
-        }
+    EditAwardDialog dialog(selectedAward, this);
+
+    QStringList sports = {"Легкая атлетика", "Плавание", "Велоспорт", "Командный спорт", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бокс", "Другое"};
+    QStringList levels = {"Местный", "Региональный", "Национальный", "Международный", "Олимпийский"};
+    dialog.fillSportComboBox(sports);
+    dialog.fillLevelComboBox(levels);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        Award editedAward = dialog.getAward();
+        //editedAward.setId(selectedAward.getId());
+        DatabaseManager& dbManager = DatabaseManager::getInstance();
+        dbManager.updateAward(editedAward);
+        updateAwardList();
     }
 }
 
 void MainWindow::on_deleteAwardButton_clicked()
 {
-    QListWidgetItem *selectedItem = ui->awardsListWidget->currentItem();
-    if (!selectedItem) {
+    QModelIndex index = ui->awardsTableView->currentIndex();
+
+    if (!index.isValid()) {
         QMessageBox::warning(this, "Предупреждение", "Пожалуйста, выберите награду для удаления.");
         return;
     }
 
-    int index = ui->awardsListWidget->currentRow();
-    if (index >= 0 && index < m_awards.size()) {
-        Award awardToDelete = m_awards[index];
-        QMessageBox::StandardButton reply = QMessageBox::question(this, "Удаление награды",
-                                                                  "Вы уверены, что хотите удалить эту награду?",
-                                                                  QMessageBox::Yes | QMessageBox::No);
-        if (reply == QMessageBox::Yes) {
-            DatabaseManager& dbManager = DatabaseManager::getInstance();
-            dbManager.removeAward(awardToDelete);
-            updateAwardList();
-        }
+    // Get the award ID directly from the model
+    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt(); // Correctly get the ID
+
+    QMessageBox::StandardButton reply = QMessageBox::question(this, "Удаление награды",
+                                                              "Вы уверены, что хотите удалить эту награду?",
+                                                              QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+        DatabaseManager& dbManager = DatabaseManager::getInstance();
+        // Remove the award using the ID
+        Award awardToDelete;
+        awardToDelete.setId(awardId);
+        dbManager.removeAward(awardToDelete);
+        updateAwardList();
     }
 }
 
@@ -138,25 +152,25 @@ void MainWindow::on_filterButton_clicked()
 void MainWindow::updateAwardList()
 {
     if (m_loggedInAthlete.getId() <= 0) {
-        ui->awardsListWidget->clear();
+        m_awardTableModel->setAwards(QList<Award>());
         return;
     }
 
     DatabaseManager& dbManager = DatabaseManager::getInstance();
     QList<Award> awards = dbManager.getAllAwards(m_loggedInAthlete.getId());
-    ui->awardsListWidget->clear();
-    for (const Award& award : awards) {
-        QListWidgetItem *item = new QListWidgetItem(award.getName());
-        item->setData(Qt::UserRole, QVariant::fromValue(award));
-        ui->awardsListWidget->addItem(item);
-    }
-    m_awards = awards;
+    m_awards = awards; // Update local awards list
+    m_awardTableModel->setAwards(awards); // Update the model with the new data
 }
 
 void MainWindow::on_awardListWidget_itemDoubleClicked(QListWidgetItem *item)
 {
-    if (item) {
-        Award award = item->data(Qt::UserRole).value<Award>();
+
+}
+
+void MainWindow::on_awardsTableView_doubleClicked(const QModelIndex &index)
+{
+    if (index.isValid()) {
+        Award award = m_awardTableModel->data(index, AwardTableModel::IdRole).value<Award>();
         AwardDetailsDialog detailsDialog(award, this);
         detailsDialog.exec();
     }
@@ -173,7 +187,8 @@ void MainWindow::on_reportButton_clicked()
 
             stream << "Название,Дата,Место проведения,Вид спорта,Дисциплина,Уровень,Занятое место,Подтверждающий документ\n";
 
-            for (const Award& award : m_awards) {
+            for (int i = 0; i < m_awardTableModel->rowCount(); ++i) {
+                Award award = m_awardTableModel->data(m_awardTableModel->index(i, 0), AwardTableModel::IdRole).value<Award>();
                 stream << award.getName() << ","
                        << award.getDate().toString("yyyy-MM-dd") << ","
                        << award.getLocation() << ","
