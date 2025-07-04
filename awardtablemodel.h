@@ -34,16 +34,16 @@ public:
     void updateAward(const Award& award);
     void removeAward(int row);
     Qt::ItemFlags flags(const QModelIndex &index) const override;
-    void searchAwards(const QString& searchText); // Add this line
+    void searchAwards(const QString& searchText);
     void filterAwards(const QString& sport, const QString& level);
 
 private:
     QList<Award> m_awards;
-    QList<Award> m_filteredAwards; // Add this line
-    QString m_searchText;          // Add this line
+    QList<Award> m_filteredAwards;
+    QString m_searchText;
     QString m_sportFilter;
     QString m_levelFilter;
 
 };
 
-#endif //
+#endif

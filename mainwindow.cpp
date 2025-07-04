@@ -13,7 +13,7 @@
 #include <QDebug>
 #include "LoginWindow.h"
 #include "AwardTableModel.h"
-#include "ReportGenerator.h"// Include AwardTableModel
+#include "ReportGenerator.h"
 
 MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
     : QMainWindow(parent)
@@ -25,10 +25,10 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
 
     ui->userNameLabel->setText(m_loggedInAthlete.getFirstName() + " " + m_loggedInAthlete.getLastName());
 
-    m_awardTableModel = new AwardTableModel(this); // Initialize the model
+    m_awardTableModel = new AwardTableModel(this);
     ui->awardsTableView->setModel(m_awardTableModel);
 
-    // Connect signals and slots
+
     connect(ui->addAwardButton, &QPushButton::clicked, this, &MainWindow::on_addAwardButton_clicked);
     connect(ui->editAwardButton, &QPushButton::clicked, this, &MainWindow::on_editAwardButton_clicked);
     connect(ui->deleteAwardButton, &QPushButton::clicked, this, &MainWindow::on_deleteAwardButton_clicked);
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent, Athlete loggedInAthlete)
 
     connect(ui->awardsTableView, &QTableView::doubleClicked, this, &MainWindow::on_awardsTableView_doubleClicked);
 
-    // Initialize the combo boxes
+
     fillSportComboBox();
     fillLevelComboBox();
 
@@ -100,10 +100,10 @@ void MainWindow::on_editAwardButton_clicked()
         return;
     }
 
-    // Get the ID directly from the model
-    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt(); // Get the ID
 
-    // Get the Award object using the ID
+    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt();
+
+
     Award selectedAward = m_awards.at(index.row());
 
     EditAwardDialog dialog(selectedAward, this);
@@ -131,15 +131,15 @@ void MainWindow::on_deleteAwardButton_clicked()
         return;
     }
 
-    // Get the award ID directly from the model
-    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt(); // Correctly get the ID
+
+    int awardId = m_awardTableModel->data(index, AwardTableModel::IdRole).toInt();
 
     QMessageBox::StandardButton reply = QMessageBox::question(this, "Удаление награды",
                                                               "Вы уверены, что хотите удалить эту награду?",
                                                               QMessageBox::Yes | QMessageBox::No);
     if (reply == QMessageBox::Yes) {
         DatabaseManager& dbManager = DatabaseManager::getInstance();
-        // Remove the award using the ID
+
         Award awardToDelete;
         awardToDelete.setId(awardId);
         dbManager.removeAward(awardToDelete);
@@ -163,8 +163,8 @@ void MainWindow::updateAwardList()
 
     DatabaseManager& dbManager = DatabaseManager::getInstance();
     QList<Award> awards = dbManager.getAllAwards(m_loggedInAthlete.getId());
-    m_awards = awards; // Update local awards list
-    m_awardTableModel->setAwards(awards); // Update the model with the new data
+    m_awards = awards;
+    m_awardTableModel->setAwards(awards);
 }
 
 void MainWindow::on_awardListWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -254,12 +254,12 @@ void MainWindow::fillSportComboBox()
 {
     QStringList sports = {"", "Легкая атлетика", "Плавание", "Велоспорт", "Командный спорт", "Футбол", "Баскетбол", "Волейбол", "Теннис", "Бокс", "Другое"};
     ui->sportFilterComboBox->addItems(sports);
-    qDebug() << "Sport ComboBox count: " << ui->sportFilterComboBox->count(); // Добавляем отладочный вывод
+    qDebug() << "Sport ComboBox count: " << ui->sportFilterComboBox->count();
 }
 
 void MainWindow::fillLevelComboBox()
 {
     QStringList levels = {"", "Местный", "Региональный", "Национальный", "Международный", "Олимпийский"};
     ui->levelFilterComboBox->addItems(levels);
-    qDebug() << "Level ComboBox count: " << ui->levelFilterComboBox->count(); // Добавляем отладочный вывод
+    qDebug() << "Level ComboBox count: " << ui->levelFilterComboBox->count();
 }

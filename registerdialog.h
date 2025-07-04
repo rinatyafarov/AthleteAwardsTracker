@@ -28,4 +28,4 @@ private:
     Ui::RegisterDialog *ui;
 };
 
-#endif // REGISTERDIALOG_H
+#endif

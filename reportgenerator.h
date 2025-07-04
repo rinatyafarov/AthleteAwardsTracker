@@ -5,7 +5,7 @@
 #include <QList>
 #include <QString>
 #include <QPainter>
-#include <QtPrintSupport/QPrinter> // Add this line
+#include <QtPrintSupport/QPrinter>
 #include <QTextDocument>
 #include "Award.h"
 
@@ -23,4 +23,4 @@ private:
     void drawFooter(QPainter *painter);
 };
 
-#endif // REPORTGENERATOR_H
+#endif

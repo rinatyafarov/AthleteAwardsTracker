@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include "Award.h"
-#include <QStringList> // Include QStringList
+#include <QStringList>
 
 namespace Ui {
 class AddAwardDialog;
@@ -14,7 +14,7 @@ class AddAwardDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AddAwardDialog(QWidget *parent = nullptr, int athleteId = -1); // Add athleteId
+    explicit AddAwardDialog(QWidget *parent = nullptr, int athleteId = -1);
     ~AddAwardDialog();
 
     Award getAward() const;
@@ -27,7 +27,7 @@ private slots:
 private:
     Ui::AddAwardDialog *ui;
     Award m_award;
-    int m_athleteId; // Store the athlete ID
+    int m_athleteId;
 };
 
-#endif // ADDAWARDDIALOG_H
+#endif

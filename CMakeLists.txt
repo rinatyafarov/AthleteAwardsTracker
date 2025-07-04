@@ -34,8 +34,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         athleteprofilewindow.h athleteprofilewindow.cpp athleteprofilewindow.ui
 
         reportgenerator.h reportgenerator.cpp reportgenerator.ui
-        awarditemwidget.h awarditemwidget.cpp
-        stringutils.h stringutils.cpp
+
+
 
 
         registerdialog.h registerdialog.cpp registerdialog.ui

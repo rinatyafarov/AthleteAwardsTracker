@@ -36,4 +36,4 @@ private:
     QString m_password;
 };
 
-#endif // ATHLETE_H
+#endif

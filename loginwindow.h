@@ -2,7 +2,7 @@
 #define LOGINWINDOW_H
 
 #include <QDialog>
-#include "Athlete.h"  // Include Athlete
+#include "Athlete.h"
 
 namespace Ui {
 class LoginWindow;
@@ -17,7 +17,7 @@ public:
     ~LoginWindow() override;
 
 signals:
-    void loginSuccessful(Athlete athlete);  // Changed Signal
+    void loginSuccessful(Athlete athlete);
 
 private slots:
     void on_loginButton_clicked();
@@ -26,8 +26,8 @@ private slots:
 private:
     Ui::LoginWindow *ui;
 
-    // Helper function for hashing passwords
+
     QString hashPassword(const QString& password) const;
 };
 
-#endif // LOGINWINDOW_H
+#endif

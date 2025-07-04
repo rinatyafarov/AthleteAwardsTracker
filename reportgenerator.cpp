@@ -31,7 +31,7 @@ bool ReportGenerator::generateReport(const QList<Award>& awards, const QString& 
     cursor.insertBlock(blockFormat, headerFormat);
     cursor.insertText("Отчет о Наградах Спортсмена", headerFormat);
 
-    // Table
+
     QTextTableFormat tableFormat;
     tableFormat.setBorder(2);
     tableFormat.setBorderStyle(QTextTableFormat::BorderStyle_Solid);
@@ -40,14 +40,14 @@ bool ReportGenerator::generateReport(const QList<Award>& awards, const QString& 
 
     QTextTable *table = cursor.insertTable(awards.size() + 1, 10, tableFormat);
 
-    // Table Header
+
     QTextCharFormat tableHeaderFormat;
     tableHeaderFormat.setFont(QFont("Arial", 14, QFont::Bold));
 
     QTextCursor cellCursor;
     QTextTableCell cell;
 
-    // Headers
+
     QStringList headers = {"Название", "Дата", "Место", "Спорт", "Дисциплина", "Уровень", "Место", "Документ"};
     for (int i = 0; i < headers.size(); ++i) {
         cell = table->cellAt(0, i);
@@ -55,7 +55,7 @@ bool ReportGenerator::generateReport(const QList<Award>& awards, const QString& 
         cellCursor.insertText(headers[i], tableHeaderFormat);
     }
 
-    // Table Data
+
     QTextCharFormat tableDataFormat;
     tableDataFormat.setFont(QFont("Arial", 10));
 

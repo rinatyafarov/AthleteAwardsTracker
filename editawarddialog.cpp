@@ -9,7 +9,7 @@ EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Initialize the UI with the existing award data
+
     ui->nameLineEdit->setText(m_award.getName());
     ui->dateEdit->setDate(m_award.getDate());
     ui->locationLineEdit->setText(m_award.getLocation());
@@ -19,12 +19,12 @@ EditAwardDialog::EditAwardDialog(const Award &award, QWidget *parent) :
     ui->placeLineEdit->setText(QString::number(m_award.getPlace()));
     ui->documentLineEdit->setText(m_award.getDocument());
 
-    // Validate nameLineEdit
+
     QRegularExpression nameRegex("^[a-zA-Z0-9 ]+$");
     QValidator *nameValidator = new QRegularExpressionValidator(nameRegex, this);
     ui->nameLineEdit->setValidator(nameValidator);
 
-    // Validate placeLineEdit
+
     QIntValidator *placeValidator = new QIntValidator(0, 10, this);
     ui->placeLineEdit->setValidator(placeValidator);
 }
@@ -72,9 +72,9 @@ void EditAwardDialog::on_buttonBox_accepted()
         return;
     }
 
-    // Update the award data
+
     m_award.setName(name);
-    m_award.setPlace(placeText.toInt()); // Convert QString to int
+    m_award.setPlace(placeText.toInt());
 
     accept();
 }

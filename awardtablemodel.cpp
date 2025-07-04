@@ -141,7 +141,7 @@ void AwardTableModel::searchAwards(const QString &searchText)
     m_filteredAwards.clear();
 
     if (searchText.isEmpty()) {
-        m_filteredAwards = m_awards; // Restore the filtered list to the original list
+        m_filteredAwards = m_awards;
         endResetModel();
         return;
     }
@@ -159,5 +159,5 @@ void AwardTableModel::searchAwards(const QString &searchText)
 int AwardTableModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return 8; // Number of columns
+    return 8;
 }

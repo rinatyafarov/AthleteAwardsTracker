@@ -6,10 +6,10 @@
 #include "Award.h"
 #include "Athlete.h"
 #include "databasemanager.h"
-#include <QListWidgetItem> // Include QListWidgetItem
-#include <QString>  // Include QString
-#include "AwardTableModel.h" // Include AwardTableModel
-#include "ReportGenerator.h" // Include ReportGenerator
+#include <QListWidgetItem>
+#include <QString>
+#include "AwardTableModel.h"
+#include "ReportGenerator.h"
 #include <QFileDialog>
 
 QT_BEGIN_NAMESPACE
@@ -24,7 +24,7 @@ public:
     MainWindow(QWidget *parent = nullptr, Athlete loggedInAthlete = Athlete());
     ~MainWindow() override;
 
-    // Declare helper functions for enum to string conversion and make them public
+
     static QString sportTypeToString(SportType type);
     static QString competitionLevelToString(CompetitionLevel level);
 
@@ -45,16 +45,16 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    DatabaseManager& m_dataManager; // Initialize in constructor
+    DatabaseManager& m_dataManager;
     Athlete m_loggedInAthlete;
     QList<Award> m_awards;
-    int m_loggedInAthleteId; // Store the athlete's ID
+    int m_loggedInAthleteId;
 
-    AwardTableModel *m_awardTableModel; // Add member
-    ReportGenerator *m_reportGenerator = new ReportGenerator(this); // Add ReportGenerator
+    AwardTableModel *m_awardTableModel;
+    ReportGenerator *m_reportGenerator = new ReportGenerator(this);
 
     void fillSportComboBox();
     void fillLevelComboBox();
 };
 
-#endif // MAINWINDOW_H
+#endif

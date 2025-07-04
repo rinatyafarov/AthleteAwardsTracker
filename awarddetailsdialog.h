@@ -21,4 +21,4 @@ private:
     Award m_award;
 };
 
-#endif // AWARDDETAILSDIALOG_H
+#endif

@@ -27,7 +27,7 @@ void LoginWindow::on_loginButton_clicked()
 
     DatabaseManager& dbManager = DatabaseManager::getInstance();
 
-    // Check if the user exists in the database
+
     QList<Athlete> athletes = dbManager.getAllAthletes();
     Athlete loggedInAthlete;
     bool found = false;
@@ -41,10 +41,10 @@ void LoginWindow::on_loginButton_clicked()
 
     if (found) {
         qDebug() << "Login Successful, emitting signal with Athlete: " << loggedInAthlete.getLogin(); // Debugging
-        emit loginSuccessful(loggedInAthlete); // Change
+        emit loginSuccessful(loggedInAthlete);
         accept();
     } else {
-        QMessageBox::warning(this, "Login Failed", "Incorrect login or password.");
+        QMessageBox::warning(this, "Ошибка", "Неправильный логин или пароль.");
     }
 }
 

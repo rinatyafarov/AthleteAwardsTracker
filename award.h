@@ -32,7 +32,7 @@ class Award
 public:
     Award();
     Award(QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document);
-    Award(int id, QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document); // Constructor with ID
+    Award(int id, QString name, QDate date, QString location, SportType sport, QString discipline, CompetitionLevel level, int place, QString document);
 
     int getId() const;
     void setId(int id);
@@ -48,8 +48,8 @@ public:
     void setDiscipline(const QString &discipline);
     CompetitionLevel getLevel() const;
     void setLevel(CompetitionLevel level);
-    int getPlace() const; // Changed type to int
-    void setPlace(int place); // Changed type to int
+    int getPlace() const;
+    void setPlace(int place);
     QString getDocument() const;
     void setDocument(const QString &document);
     QJsonObject toJson() const;
@@ -68,9 +68,9 @@ private:
     SportType m_sport;
     QString m_discipline;
     CompetitionLevel m_level;
-    int m_place; // Changed type to int
+    int m_place;
     QString m_document;\
     int m_athleteId;
 };
 
-#endif // AWARD_H
+#endif

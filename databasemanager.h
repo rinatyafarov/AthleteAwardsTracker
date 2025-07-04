@@ -14,7 +14,7 @@ class DatabaseManager : public QObject
     Q_OBJECT
 
 public:
-    static DatabaseManager& getInstance(); // Singleton
+    static DatabaseManager& getInstance();
 
     bool connectToDatabase(const QString& dbName);
     void closeDatabase();
@@ -25,11 +25,11 @@ public:
     void removeAward(const Award& award);
 
     QList<Athlete> getAllAthletes() const;
-    bool addAthlete(const Athlete& athlete); // Changed return type to bool
+    bool addAthlete(const Athlete& athlete);
     void updateAthlete(const Athlete& athlete);
     void removeAthlete(const Athlete& athlete);
 
-    QSqlDatabase& getDatabase() { return m_db; } // Add this method
+    QSqlDatabase& getDatabase() { return m_db; }
 
     bool loginExists(const QString& login);
 
@@ -39,9 +39,9 @@ private:
     static DatabaseManager* m_instance;
 
     QSqlDatabase m_db;
-    bool executeQuery(const QString& queryStr); // Helper function
+    bool executeQuery(const QString& queryStr);
     bool initializeTables();
 
 };
 
-#endif // DATABANAGER_H
+#endif

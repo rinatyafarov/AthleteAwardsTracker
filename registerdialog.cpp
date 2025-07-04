@@ -1,7 +1,7 @@
 #include "RegisterDialog.h"
 #include "ui_registerdialog.h"
-#include "databasemanager.h" // Include DatabaseManager
-#include "Athlete.h" // Include Athlete
+#include "databasemanager.h"
+#include "Athlete.h"
 #include <QMessageBox>
 #include <QCryptographicHash>
 #include <QDebug>
@@ -13,7 +13,7 @@ RegisterDialog::RegisterDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Добавляем валидатор для email
+
     QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
     QValidator *emailValidator = new QRegularExpressionValidator(emailRegex, this);
     ui->emailLineEdit->setValidator(emailValidator);
@@ -43,50 +43,50 @@ void RegisterDialog::on_registerButton_clicked()
     QString login = ui->loginLineEdit->text();
     QString password = ui->passwordLineEdit->text();
 
-    // Validation
+
     if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || login.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, "Registration Error", "All fields are required.");
+        QMessageBox::warning(this, "Ошибка регистрации", "Заполните все поля.");
         return;
     }
 
-    // Check email validity using the validator
+
     QString input = email;
     int pos = 0;
     QValidator::State state = ui->emailLineEdit->validator()->validate(input, pos);
     if (state != QValidator::Acceptable) {
-        QMessageBox::warning(this, "Registration Error", "Invalid email format.");
+        QMessageBox::warning(this, "Ошибка регистрации", "Неккоректный формат email.");
         return;
     }
 
-    // Password Validation
+
     if (password.length() < 8) {
-        QMessageBox::warning(this, "Registration Error", "Password must be at least 8 characters long.");
+        QMessageBox::warning(this, "Ошибка регистрации", "Пароль должен быть больше 8 символов.");
         return;
     }
 
-    // Hash password
+
     QByteArray passwordBytes = password.toUtf8();
     QByteArray hashedPasswordBytes = QCryptographicHash::hash(passwordBytes, QCryptographicHash::Sha256);
     QString hashedPassword = hashedPasswordBytes.toHex();
 
-    // Check if login already exists
+
     DatabaseManager& dbManager = DatabaseManager::getInstance();
     if (dbManager.loginExists(login)) {
-        QMessageBox::warning(this, "Registration Error", "This login is already taken.");
+        QMessageBox::warning(this, "Ошибка регистрации", "Данный логин уже используется.");
         return;
     }
 
-    // Create new athlete
+
     Athlete newAthlete(firstName, lastName, dateOfBirth, email, login, hashedPassword);
 
-    // Add athlete to database
+
     bool success = dbManager.addAthlete(newAthlete);
     if (success) {
-        QMessageBox::information(this, "Registration Successful", "You have successfully registered!");
+        QMessageBox::information(this, "Регистрация прошла успешна", "Вы зарегестрированы!");
         qDebug() << "Registration Success, emitting registrationSuccessful()";
-        emit registrationSuccessful();  // Emit the signal
-        close();  // Close the RegisterDialog
+        emit registrationSuccessful();
+        close();
     } else {
-        QMessageBox::critical(this, "Database Error", "Failed to register. Please try again.");
+        QMessageBox::critical(this, "Ошибка базы данных", "Ошибка регистрации. Попробуйте позднее.");
     }
 }

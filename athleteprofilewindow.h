@@ -24,4 +24,4 @@ private:
     Athlete m_athlete;
 };
 
-#endif // ATHLETEPROFILEWINDOW_H
+#endif

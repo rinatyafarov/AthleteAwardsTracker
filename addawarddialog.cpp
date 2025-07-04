@@ -9,12 +9,12 @@ AddAwardDialog::AddAwardDialog(QWidget *parent, int athleteId) :
 {
     ui->setupUi(this);
 
-    // Validate nameLineEdit
+
     QRegularExpression nameRegex("^[a-zA-Z0-9 ]+$");
     QValidator *nameValidator = new QRegularExpressionValidator(nameRegex, this);
     ui->nameLineEdit->setValidator(nameValidator);
 
-    // Validate placeLineEdit
+
     QIntValidator *placeValidator = new QIntValidator(0, 10, this);
     ui->placeLineEdit->setValidator(placeValidator);
 }
@@ -26,17 +26,17 @@ AddAwardDialog::~AddAwardDialog()
 
 void AddAwardDialog::on_buttonBox_accepted()
 {
-    // Get the values from the input fields
+
     QString name = ui->nameLineEdit->text();
     QDate date = ui->dateEdit->date();
     QString location = ui->locationLineEdit->text();
     SportType sport = static_cast<SportType>(ui->sportComboBox->currentIndex());
     QString discipline = ui->disciplineLineEdit->text();
     CompetitionLevel level = static_cast<CompetitionLevel>(ui->levelComboBox->currentIndex());
-    int place = ui->placeLineEdit->text().toInt(); // Convert QString to int
+    int place = ui->placeLineEdit->text().toInt();
     QString document = ui->documentLineEdit->text();
 
-    // Validate name
+
     if (name.isEmpty()) {
         QMessageBox::warning(this, "Предупреждение", "Название награды не может быть пустым.");
         return;
@@ -63,7 +63,7 @@ void AddAwardDialog::on_buttonBox_accepted()
         return;
     }
 
-    // Create an Award object with the validated data
+
     Award award;
     award.setName(name);
     award.setDate(date);
@@ -75,9 +75,9 @@ void AddAwardDialog::on_buttonBox_accepted()
     award.setDocument(document);
     award.setAthleteId(m_athleteId);
 
-    // Set the award to the dialog
+
     m_award = award;
-    accept(); // Accept the dialog if all validations pass
+    accept();
 }
 
 Award AddAwardDialog::getAward() const

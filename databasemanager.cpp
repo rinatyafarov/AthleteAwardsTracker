@@ -42,7 +42,7 @@ bool DatabaseManager::initializeTables()
 {
     QSqlQuery query(m_db);
 
-    // Create athletes table
+
     if (!query.exec("CREATE TABLE IF NOT EXISTS athletes ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "firstName VARCHAR(255) NOT NULL,"
@@ -56,7 +56,7 @@ bool DatabaseManager::initializeTables()
         return false;
     }
 
-    // Create awards table
+
     if (!query.exec("CREATE TABLE IF NOT EXISTS awards ("
                     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
                     "name VARCHAR(255) NOT NULL,"
@@ -115,8 +115,8 @@ void DatabaseManager::addAward(const Award& award)
     query.bindValue(":level", static_cast<int>(award.getLevel()));
     query.bindValue(":place", award.getPlace());
     query.bindValue(":document", award.getDocument());
-    // Assuming you have a way to get athlete_id, otherwise use a default value
-    query.bindValue(":athlete_id", 1); // Replace with the actual athlete_id
+
+    query.bindValue(":athlete_id", 1);
     if (!query.exec()) {
         qDebug() << "Error adding award:" << query.lastError().text();
     }
@@ -148,7 +148,7 @@ void DatabaseManager::removeAward(const Award& award)
 {
     QSqlQuery query(m_db);
     query.prepare("DELETE FROM awards WHERE id = :id");
-    query.bindValue(":id", award.getId()); // Assuming you have getId()
+    query.bindValue(":id", award.getId());
     if (!query.exec()) {
         qDebug() << "Error removing award: " << query.lastError().text();
     }
@@ -161,7 +161,7 @@ QList<Athlete> DatabaseManager::getAllAthletes() const
     if (query.exec()) {
         while (query.next()) {
             Athlete athlete;
-            athlete.setId(query.value("id").toInt()); // Считываем id как int
+            athlete.setId(query.value("id").toInt());
             athlete.setFirstName(query.value("firstName").toString());
             athlete.setLastName(query.value("lastName").toString());
             athlete.setDateOfBirth(query.value("dateOfBirth").toDate());
@@ -190,16 +190,16 @@ bool DatabaseManager::addAthlete(const Athlete& athlete)
 
     if (!query.exec()) {
         qDebug() << "Error adding athlete:" << query.lastError().text();
-        return false; // Return false on error
+        return false;
     }
-    return true; // Return true on success
+    return true;
 }
 
 void DatabaseManager::updateAthlete(const Athlete& athlete)
 {
     QSqlQuery query(m_db);
     query.prepare("UPDATE athletes SET firstName = :firstName, lastName = :lastName, "
-                  "dateOfBirth = :dateOfBirth, email = :email, login = :login " // Remove password
+                  "dateOfBirth = :dateOfBirth, email = :email, login = :login "
                   "WHERE id = :id");
 
     query.bindValue(":id", athlete.getId());
@@ -208,7 +208,7 @@ void DatabaseManager::updateAthlete(const Athlete& athlete)
     query.bindValue(":dateOfBirth", athlete.getDateOfBirth());
     query.bindValue(":email", athlete.getEmail());
     query.bindValue(":login", athlete.getLogin());
-    //query.bindValue(":password", athlete.getPassword()); // Remove password binding
+
 
     if (!query.exec()) {
         qDebug() << "Error updating athlete: " << query.lastError().text();
@@ -219,7 +219,7 @@ void DatabaseManager::removeAthlete(const Athlete& athlete)
 {
     QSqlQuery query(m_db);
     query.prepare("DELETE FROM athletes WHERE id = :id");
-    query.bindValue(":id", athlete.getId()); // Assuming you have getId()
+    query.bindValue(":id", athlete.getId());
 
     if (!query.exec()) {
         qDebug() << "Error removing athlete: " << query.lastError().text();
@@ -240,9 +240,9 @@ bool DatabaseManager::loginExists(const QString &login) {
     query.bindValue(":login", login);
 
     if (query.exec()) {
-        return query.next(); // Returns true if a row is found, meaning the login exists
+        return query.next();
     } else {
         qDebug() << "Error checking login existence:" << query.lastError().text();
-        return false; // Handle the error appropriately
+        return false;
     }
 }

@@ -1,4 +1,3 @@
-// EditAwardDialog.h
 #ifndef EDITAWARDDIALOG_H
 #define EDITAWARDDIALOG_H
 
@@ -15,7 +14,7 @@ class EditAwardDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditAwardDialog(const Award &award, QWidget *parent = nullptr); // Check this
+    explicit EditAwardDialog(const Award &award, QWidget *parent = nullptr);
     ~EditAwardDialog() override;
 
     Award getAward() const;
@@ -30,4 +29,4 @@ private:
     Award m_award;
 };
 
-#endif // EDITAWARDDIALOG_H
+#endif
